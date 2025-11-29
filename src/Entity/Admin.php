@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use Couchbase\User;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\AdminRepository;
 

@@ -14,6 +14,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[ORM\DiscriminatorMap([
     'utilisateur' => Utilisateur::class,
     'admin' => Admin::class,
+    'vendeur' => Vendeur::class
 ])]
 #[UniqueEntity(fields: ['email'], message: 'Cet email est déjà utilisé')]
 class Utilisateur implements PasswordAuthenticatedUserInterface
