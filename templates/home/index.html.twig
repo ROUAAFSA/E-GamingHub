@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block stylesheets %}
+    {# Remixicons #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.css">
+
+    {# CSS principal #}
+    <link rel="stylesheet" href="{{ asset('navbar/css/styles.css') }}">
+
+    {# SCSS compilé #}
+    <link rel="stylesheet" href="{{ asset('navbar/scss/main.scss') }}">
+
+    {# Style pour isoler le contenu de temp #}
+    <style>
+        /* Conteneur pour isoler les styles */
+        .temp-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Réinitialiser uniquement les styles à l'intérieur du conteneur temp-content */
+        .temp-content > * {
+            all: revert;
+        }
+
+        /* Préserver les styles du container principal */
+        .container {
+            margin-top: 5rem;
+        }
+
+        /* Styles pour le dropdown */
+        .dropdown__list {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + .5rem);
+            background-color: var(--white-color);
+            box-shadow: 0 4px 20px hsla(216, 4%, 14%, .1);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            width: max-content;
+        }
+
+        .show-dropdown .dropdown__list {
+            display: block;
+        }
+
+        /* Assurer que le dropdown reste au-dessus */
+        .nav-header {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .dropdown {
+            position: relative;
+            z-index: 1001;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {# Inclure la navbar appropriée en fonction de l'état de connexion #}
+    {% if app.session.get('user') %}
+        {% include 'navbar/navbar_login.html.twig' %}
+    {% else %}
+        {% include 'navbar/navbar_no_login.html.twig' %}
+    {% endif %}
+
+    <div class="container">
+        {# Conteneur isolé pour le template temp #}
+        <div class="temp-content">
+            {% include 'temp/index.html.twig' %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        /*=============== SHOW DROPDOWN ===============*/
+        const dropdown = document.getElementById('dropdown');
+        if(dropdown) {
+            dropdown.addEventListener('click', () => {
+                dropdown.classList.toggle('show-dropdown');
+            });
+        }
+    </script>
+    <script src="{{ asset('navbar/js/main.js') }}" defer></script>
+{% endblock %}
