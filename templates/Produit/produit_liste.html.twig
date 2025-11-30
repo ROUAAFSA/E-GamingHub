@@ -1,35 +1,32 @@
-{% extends 'base.html.twig' %}
+<h1>Liste des Produits</h1>
 
-{% block title %}Liste des Produits{% endblock %}
+<table border="1" cellpadding="8" cellspacing="0" style="margin-top:20px; border-collapse: collapse;">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Prix</th>
+        <th>Quantité</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
 
-{% block body %}
-    <h1>Liste des Produits</h1>
-
-    <a href="{{ path('produit_ajouter') }}">➕ Ajouter un produit</a>
-
-    <table border="1" cellpadding="8" cellspacing="0" style="margin-top:20px;">
+    <tbody>
+    {% for produit in produits %}
         <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Prix</th>
-            <th>Actions</th>
+            <td>{{ produit.id }}</td>
+            <td>{{ produit.nom }}</td>
+            <td>{{ produit.prix }}</td>
+            <td>{{ produit.quantite }}</td>
+
+            <td>
+                <a href="{{ path('produit_modifier', { id: produit.id }) }}">Modifier</a> |
+                <a href="{{ path('produit_supprimer', { id: produit.id }) }}"
+                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">
+                    Supprimer
+                </a>
+            </td>
         </tr>
-
-        {% for produit in produits %}
-            <tr>
-                <td>{{ produit.id }}</td>
-                <td>{{ produit.nom }}</td>
-                <td>{{ produit.prix }}</td>
-                <td>
-                    <a href="{{ path('produit_modifier', {id: produit.id}) }}">✏ Modifier</a>
-
-                    {{ include('Produit/_delete_form.html.twig', { produit: produit }) }}
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">Aucun produit trouvé.</td>
-            </tr>
-        {% endfor %}
-    </table>
-{% endblock %}
+    {% endfor %}
+    </tbody>
+</table>

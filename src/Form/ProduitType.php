@@ -3,13 +3,18 @@ namespace App\Form;
 
 use App\Entity\Produit;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
+
+
+// the product form
 class ProduitType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -27,6 +32,18 @@ class ProduitType extends AbstractType
                 'attr' => ['placeholder' => 'Prix', 'min' => 0, 'step' => '0.01', 'type' => 'number']
             ])
 
+            ->add('quantite', IntegerType::class, [
+                'label'       => 'Quantité',
+                'required'    => true,
+                'attr'        => ['min' => 0, 'placeholder' => 'Quantité en stock'],
+                'constraints' => [
+                    new PositiveOrZero([
+                        'message' => 'La quantité doit être un nombre positif ou zéro.'
+                    ])
+                ]
+            ])
+
+            // takes image
             ->add('image', FileType::class, [
                 'label' => 'Image du produit',
                 'mapped' => false,

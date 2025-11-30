@@ -27,6 +27,16 @@ class Produit
     #[Assert\PositiveOrZero(message: 'La quantité doit être un entier positif.')]
     private ?int $quantite = null;
 
+    public function getQuantite(): ?int
+    {
+        return $this->quantite;
+    }
+
+    public function setQuantite(?int $quantite): void
+    {
+        $this->quantite = $quantite;
+    }
+
 
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]

@@ -28,9 +28,6 @@ class Commande
     #[ORM\JoinColumn(nullable: false)]
     private ?Utilisateur $utilisateur = null;
 
-    #[ORM\OneToMany(mappedBy: 'commande', targetEntity: LigneCommande::class, cascade: ['persist', 'remove'])]
-    private Collection $lignesCommande;
-
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $adresseLivraison = null;
 
@@ -51,7 +48,6 @@ class Commande
 
     public function __construct()
     {
-        $this->lignesCommande = new ArrayCollection();
         $this->date = new \DateTime();
     }
 
@@ -104,29 +100,7 @@ class Commande
         return $this;
     }
 
-    public function getLignesCommande(): Collection
-    {
-        return $this->lignesCommande;
-    }
 
-    public function addLigneCommande(LigneCommande $ligneCommande): self
-    {
-        if (!$this->lignesCommande->contains($ligneCommande)) {
-            $this->lignesCommande[] = $ligneCommande;
-            $ligneCommande->setCommande($this);
-        }
-        return $this;
-    }
-
-    public function removeLigneCommande(LigneCommande $ligneCommande): self
-    {
-        if ($this->lignesCommande->removeElement($ligneCommande)) {
-            if ($ligneCommande->getCommande() === $this) {
-                $ligneCommande->setCommande(null);
-            }
-        }
-        return $this;
-    }
 
     public function getAdresseLivraison(): ?string
     {
@@ -193,4 +167,4 @@ class Commande
         $this->codePromo = $codePromo;
         return $this;
     }
-} 
+}

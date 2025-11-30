@@ -1,13 +1,5 @@
-{% extends 'base.html.twig' %}
+    <h1>Ajout d'un Produit</h1>
 
-{% block body %}
-    <h1>{{ is_edit ? 'Modifier un produit' : 'Ajouter un produit' }}</h1>
-
-    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
-    {{ form_widget(form) }}
-    <button>{{ is_edit ? 'Enregistrer' : 'Ajouter' }}</button>
-    {{ form_end(form) }}
-
-    <a href="{{ path('produit_liste') }}">Retour à la liste</a>
-
-{% endblock %}
+    <form method="post">
+        {{ form_widget(form)}}
+    </form>

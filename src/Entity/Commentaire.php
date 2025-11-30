@@ -37,9 +37,9 @@ class Commentaire
     )]
     private string $auteur;
 
-    #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'commentaires')]
+    #[ORM\ManyToOne(targetEntity: Evenement::class, inversedBy: 'commentaires')]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
-    private ?Post $post = null;
+    private ?Evenement $evenement = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $signaled = false;
@@ -87,14 +87,14 @@ class Commentaire
         return $this;
     }
 
-    public function getPost(): ?Post
+    public function getEvenement(): ?Evenement
     {
-        return $this->post;
+        return $this->evenement;
     }
 
-    public function setPost(?Post $post): self
+    public function setEvenement(?Evenement $evenement): self
     {
-        $this->post = $post;
+        $this->evenement = $evenement;
         return $this;
     }
 

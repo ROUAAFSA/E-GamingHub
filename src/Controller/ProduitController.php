@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Produit;
 use App\Form\ProduitType;
+use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class ProduitController extends AbstractController
 {
 
+    //get a list of products
     #[Route('/', name: 'produit_liste')]
     public function liste(EntityManagerInterface $em): Response
     {
@@ -24,6 +26,7 @@ class ProduitController extends AbstractController
         ]);
     }
 
+    //add a new product
     #[Route('/ajouter', name: 'produit_ajouter')]
     public function ajouterProduit(Request $request, EntityManagerInterface $em): Response
     {
@@ -32,6 +35,7 @@ class ProduitController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             $em->persist($produit);
             $em->flush();
 
@@ -40,18 +44,21 @@ class ProduitController extends AbstractController
         }
 
         return $this->render('Produit/produit_form.html.twig', [
-            'form' => $form->createView(),
-            'is_edit' => false
-        ]);
+            'form' => $form->createView()]);
     }
 
+    //modify a product
     #[Route('/{id}/modifier', name: 'produit_modifier')]
-    public function modifierProduit(Request $request, Produit $produit, EntityManagerInterface $em): Response
+    public function modifierProduit(Request $request,$id ,ProduitRepository $pr, EntityManagerInterface $em): Response
     {
+        $produit = $pr->find($id);
         $form = $this->createForm(ProduitType::class, $produit);
         $form->handleRequest($request);
 
+        $imageFile = $form->get('image')->getData();
+
         if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($produit);
             $em->flush();
 
             $this->addFlash('success', 'Produit modifié avec succès.');
@@ -64,15 +71,14 @@ class ProduitController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/supprimer', name: 'produit_supprimer', methods: ['POST'])]
+    //delete a product
+    #[Route('/{id}/supprimer', name: 'produit_supprimer')]
     public function supprimerProduit(Request $request, Produit $produit, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('supprimer_produit_' . $produit->getId(), $request->request->get('_token'))) {
             $em->remove($produit);
             $em->flush();
 
             $this->addFlash('success', 'Produit supprimé avec succès.');
-        }
 
         return $this->redirectToRoute('produit_liste');
     }
