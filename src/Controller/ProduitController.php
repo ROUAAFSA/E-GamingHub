@@ -55,8 +55,6 @@ class ProduitController extends AbstractController
         $form = $this->createForm(ProduitType::class, $produit);
         $form->handleRequest($request);
 
-        $imageFile = $form->get('image')->getData();
-
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($produit);
             $em->flush();

@@ -1,0 +1,37 @@
+<h1>Liste des Réclamations</h1>
+
+<table border="1" cellpadding="8" cellspacing="0" style="margin-top:20px; border-collapse: collapse;">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Description</th>
+        <th>Statut</th>
+        <th>Catégorie</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for reclamation in reclamations %}
+        <tr>
+            <td>{{ reclamation.id }}</td>
+            <td>{{ reclamation.description }}</td>
+            <td>{{ reclamation.statut }}</td>
+            <td>{{ reclamation.categorie }}</td>
+
+            <td>
+                <a href="{{ path('app_reclamation_edit', { id: reclamation.id }) }}">
+                    Modifier
+                </a>
+
+                <form method="post"
+                      action="{{ path('app_reclamation_delete', { id: reclamation.id }) }}"
+                      style="display:inline-block;"
+                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?');">
+                    <button type="submit">Supprimer</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
