@@ -199,7 +199,6 @@ final class HomeController extends AbstractController
                 'quantity' => $panier[$produit->getId()],
             ];
         }
-        Stripe::setApiKey('sk_test_51RKUqmRbLU4KtDWNvZyhccM8W3Nic39UBkvITBRP5fpLPUv9A96z0GQnlv44E7MwK1RfV25XnDMtHPawjUeixCoZ00W2bISX6a'); // Clé secrète Stripe test
         $checkoutSession = StripeSession::create([
             'payment_method_types' => ['card'],
             'line_items' => $stripeProducts,
