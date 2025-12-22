@@ -1,0 +1,504 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
+{% endblock %}
+
+{% block body %}
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <img src="{{ asset('navbar/img/E-SPORTIFY.png') }}" alt="E-SPORTIFY" style="width: 180px; height: auto; margin-left: 10px;">
+        </a>
+        <ul class="side-menu top">
+            <li>
+                <a href="{{ path('app_dashboard_admin') }}">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="{{ path('admin_boutique') }}">
+                    <i class='bx bxs-shopping-bag-alt'></i>
+                    <span class="text">Boutique</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-doughnut-chart'></i>
+                    <span class="text">Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_admin_dashboard') }}">
+                    <i class='bx bxs-message-dots'></i>
+                    <span class="text">Message</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-group'></i>
+                    <span class="text">Team</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="side-menu">
+            <li>
+                <a href="#">
+                    <i class='bx bxs-cog'></i>
+                    <span class="text">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_logout') }}" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+    <!-- SIDEBAR -->
+
+    <!-- CONTENT -->
+    <section id="content">
+        <main>
+            <div class="container py-4">
+                <h2>Boutique</h2>
+                <nav class="nav nav-tabs mb-4">
+                    <a class="nav-link {% if section == 'produits' %}active{% endif %}" href="{{ path('admin_boutique', {'section': 'produits'}) }}">Produits</a>
+                    <a class="nav-link {% if section == 'commandes' %}active{% endif %}" href="{{ path('admin_boutique', {'section': 'commandes'}) }}">Commandes</a>
+                    <a class="nav-link {% if section == 'dashboard' %}active{% endif %}" href="{{ path('admin_boutique', {'section': 'dashboard'}) }}">Dashboard</a>
+                    <a class="nav-link {% if section == 'stock' %}active{% endif %}" href="{{ path('admin_boutique', {'section': 'stock'}) }}">Stock</a>
+                    <a class="nav-link {% if section == 'promotions' %}active{% endif %}" href="{{ path('admin_boutique', {'section': 'promotions'}) }}">Promotions</a>
+                </nav>
+                <div>
+                    {% if section == 'produits' %}
+                        <h4>Gestion des Produits</h4>
+                        <div class="mb-3 text-end">
+                            <a href="{{ path('admin_produit_ajouter') }}" class="btn btn-primary">Ajouter un produit</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nom</th>
+                                    <th>Prix</th>
+                                    <th>Stock</th>
+                                    <th>Catégorie</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for produit in produits %}
+                                    <tr>
+                                        <td>{{ produit.id }}</td>
+                                        <td>{{ produit.nom }}</td>
+                                        <td>{{ produit.prix }} €</td>
+                                        <td>{{ produit.stock }}</td>
+                                        <td>{{ produit.categorie ? produit.categorie.nom : '' }}</td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-info">Voir</a>
+                                            <a href="{{ path('admin_produit_modifier', {'id': produit.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                                            <form action="{{ path('admin_produit_supprimer', {'id': produit.id}) }}" method="post" style="display:inline-block;" onsubmit="return confirm('Voulez-vous vraiment supprimer ce produit ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('supprimer_produit_' ~ produit.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="6" class="text-center">Aucun produit trouvé.</td></tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% elseif section == 'commandes' %}
+                        <h4>Gestion des Commandes</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered align-middle" id="commandesTable">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Montant</th>
+                                    <th>Paiement</th>
+                                    <th>État</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for commande in commandes %}
+                                    <tr>
+                                        <td>{{ commande.id }}</td>
+                                        <td>{{ commande.utilisateur.nom }} {{ commande.utilisateur.prenom }}</td>
+                                        <td>{{ commande.date ? commande.date|date('d/m/Y H:i') : '' }}</td>
+                                        <td>{{ commande.montant|number_format(2, '.', ' ') }} TND</td>
+                                        <td>{{ commande.statut == 'Payée en ligne' ? 'Stripe' : 'Cash' }}</td>
+                                        <td>
+                                            <select class="form-select form-select-sm etat-select" data-id="{{ commande.id }}" data-token="{{ csrf_token('update_commande_status_' ~ commande.id) }}">
+                                                <option value="En attente" {% if commande.statut == 'En attente' %}selected{% endif %}>En attente</option>
+                                                <option value="Validée" {% if commande.statut == 'Validée' %}selected{% endif %}>Validée</option>
+                                                <option value="Expédiée" {% if commande.statut == 'Expédiée' %}selected{% endif %}>Expédiée</option>
+                                                <option value="Annulée" {% if commande.statut == 'Annulée' %}selected{% endif %}>Annulée</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button id="validerTousBtn" class="btn btn-success">Valider tous les changements</button>
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const validerTousBtn = document.getElementById('validerTousBtn');
+                                if (!validerTousBtn) return;
+                                const selects = document.querySelectorAll('.etat-select');
+                                const originalValues = Array.from(selects).map(select => select.value);
+                                function getChangements() {
+                                    const changements = [];
+                                    selects.forEach((select, i) => {
+                                        if (select.value !== originalValues[i]) {
+                                            changements.push({
+                                                id: select.getAttribute('data-id'),
+                                                statut: select.value,
+                                                token: select.getAttribute('data-token'),
+                                                select: select
+                                            });
+                                        }
+                                    });
+                                    return changements;
+                                }
+                                function updateValiderBtnState() {
+                                    validerTousBtn.disabled = getChangements().length === 0;
+                                }
+                                selects.forEach((select, i) => {
+                                    select.addEventListener('change', updateValiderBtnState);
+                                });
+                                validerTousBtn.addEventListener('click', function() {
+                                    const changements = getChangements();
+                                    if (changements.length === 0) return;
+                                    let successCount = 0;
+                                    let errorCount = 0;
+                                    let doneCount = 0;
+                                    changements.forEach(({id, statut, token, select}, idx) => {
+                                        fetch("{{ path('admin_commandes_update_status') }}", {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/x-www-form-urlencoded',
+                                                'X-Requested-With': 'XMLHttpRequest',
+                                            },
+                                            body: `id=${id}&statut=${encodeURIComponent(statut)}&_token=${token}`
+                                        })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    select.classList.add('is-valid');
+                                                    select.classList.remove('is-invalid');
+                                                    originalValues[idx] = statut;
+                                                    showToast('État à jour !', 'success');
+                                                } else {
+                                                    select.classList.add('is-invalid');
+                                                    select.classList.remove('is-valid');
+                                                }
+                                            })
+                                            .catch(() => {
+                                                select.classList.add('is-invalid');
+                                                select.classList.remove('is-valid');
+                                            })
+                                            .finally(() => {
+                                                doneCount++;
+                                                if (doneCount === changements.length) {
+                                                    updateValiderBtnState();
+                                                }
+                                            });
+                                    });
+                                });
+                                updateValiderBtnState();
+                            });
+                            function showToast(message, type) {
+                                let toast = document.getElementById('customToast');
+                                if (!toast) {
+                                    toast = document.createElement('div');
+                                    toast.id = 'customToast';
+                                    toast.style.position = 'fixed';
+                                    toast.style.top = '30px';
+                                    toast.style.right = '30px';
+                                    toast.style.zIndex = 9999;
+                                    toast.style.minWidth = '200px';
+                                    toast.className = 'alert alert-' + type;
+                                    document.body.appendChild(toast);
+                                }
+                                toast.textContent = message;
+                                toast.className = 'alert alert-' + type;
+                                toast.style.display = 'block';
+                                setTimeout(() => { toast.style.display = 'none'; }, 2000);
+                            }
+                        </script>
+                        {% elseif section == 'dashboard' %}
+                        <h4>Dashboard Boutique</h4>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card bg-primary text-white mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Total Produits</h6>
+                                        <h2 class="card-text">{{ stats.totalProduits|default(0) }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-success text-white mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Total Commandes</h6>
+                                        <h2 class="card-text">{{ stats.totalCommandes|default(0) }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-warning text-white mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Recette totale</h6>
+                                        <h2 class="card-text">{{ stats.totalVentes|number_format(2, '.', ' ') }} TND</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-white">
+                                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Commandes par statut</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="commandesChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-white">
+                                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Méthodes de paiement</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="paiementPieChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                // Bar chart Commandes par statut
+                                const ctx = document.getElementById('commandesChart').getContext('2d');
+                                new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: {{ chartData.labels|json_encode|raw }},
+                                        datasets: [{
+                                            label: 'Nombre de commandes',
+                                            data: {{ chartData.data|json_encode|raw }},
+                                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                            borderColor: 'rgba(54, 162, 235, 1)',
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        scales: {
+                                            y: { beginAtZero: true }
+                                        }
+                                    }
+                                });
+                                // Pie chart Méthodes de paiement
+                                const ctxPie = document.getElementById('paiementPieChart').getContext('2d');
+                                new Chart(ctxPie, {
+                                    type: 'pie',
+                                    data: {
+                                        labels: ['Cash', 'Stripe'],
+                                        datasets: [{
+                                            data: [{{ stats.nbPaiementCash|default(0) }}, {{ stats.nbPaiementStripe|default(0) }}],
+                                            backgroundColor: ['#36a2eb', '#ffcd56'],
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: { position: 'bottom' },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function(context) {
+                                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                        const value = context.parsed;
+                                                        const percent = total ? (value / total * 100).toFixed(1) : 0;
+                                                        return `${context.label}: ${value} (${percent}%)`;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+                        </script>
+                        {% elseif section == 'promotions' %}
+                        <h4>Gestion des Promotions</h4>
+                        <div class="row mt-4">
+                            <!-- Section Codes Promo -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0">Codes Promo</h5>
+                                        <a href="{{ path('admin_code_promo_new') }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-plus"></i> Nouveau code
+                                        </a>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>Code</th>
+                                                    <th>Réduction</th>
+                                                    <th>État</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for code in codes_promo %}
+                                                    <tr>
+                                                        <td>{{ code.code }}</td>
+                                                        <td>
+                                                            {% if code.montantFixe %}
+                                                                {{ code.montantFixe|number_format(2, ',', ' ') }} TND
+                                                            {% elseif code.pourcentage %}
+                                                                {{ code.pourcentage }}%
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                        <span class="badge {% if code.actif %}bg-success{% else %}bg-danger{% endif %}">
+                                                            {{ code.actif ? 'Actif' : 'Inactif' }}
+                                                        </span>
+                                                        </td>
+                                                        <td>
+                                                            <a href="{{ path('admin_code_promo_edit', {'id': code.id}) }}" class="btn btn-sm btn-info">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="4" class="text-center">Aucun code promo</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section Promotions sur Produits -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0">Promotions sur Produits</h5>
+                                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newPromoModal">
+                                            <i class="fas fa-plus"></i> Nouvelle promotion
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>Produit</th>
+                                                    <th>Réduction</th>
+                                                    <th>Période</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for promo in promotions_produits %}
+                                                    <tr>
+                                                        <td>{{ promo.produit.nom }}</td>
+                                                        <td>{{ promo.pourcentage }}%</td>
+                                                        <td>
+                                                            Du {{ promo.dateDebut|date('d/m/Y') }}<br>
+                                                            au {{ promo.dateFin|date('d/m/Y') }}
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editPromoModal{{ promo.id }}">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <form method="post" action="{{ path('admin_promotion_delete', {'id': promo.id}) }}" class="d-inline">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promo.id) }}">
+                                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette promotion ?')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="4" class="text-center">Aucune promotion active</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Nouvelle Promotion -->
+                        <div class="modal fade" id="newPromoModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Nouvelle Promotion</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="post" action="{{ path('admin_promotion_new') }}">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="produit" class="form-label">Produit</label>
+                                                <select class="form-select" id="produit" name="produit" required>
+                                                    <option value="">Sélectionner un produit</option>
+                                                    {% for produit in produits %}
+                                                        <option value="{{ produit.id }}">{{ produit.nom }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="pourcentage" class="form-label">Pourcentage de réduction</label>
+                                                <input type="number" class="form-control" id="pourcentage" name="pourcentage" required min="1" max="99">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="dateDebut" class="form-label">Date de début</label>
+                                                <input type="date" class="form-control" id="dateDebut" name="dateDebut" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="dateFin" class="form-label">Date de fin</label>
+                                                <input type="date" class="form-control" id="dateFin" name="dateFin" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            <button type="submit" class="btn btn-primary">Créer la promotion</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </section>
+    <!-- CONTENT -->
+{% endblock %}

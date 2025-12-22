@@ -1,0 +1,575 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord - Administration{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
+    <style>
+        /* Styles pour les boutons de traduction */
+        .translate-button {
+            background-color: #17a2b8 !important;
+            color: white !important;
+            border: none !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .translate-button:hover {
+            background-color: #138496 !important;
+        }
+
+        .translate-button i {
+            color: white !important;
+            margin-right: 5px !important;
+        }
+
+        .description-cell {
+            min-width: 300px !important;
+            max-width: 500px !important;
+            position: relative !important;
+        }
+
+        .description-container {
+            flex: 1 !important;
+            min-height: 24px !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        .translated-text, .original-text {
+            display: block;
+            width: 100%;
+            transition: opacity 0.3s ease;
+        }
+
+        .translated-text {
+            display: none;
+            color: #17a2b8;
+        }
+
+        .description-cell .d-flex {
+            gap: 10px !important;
+            width: 100% !important;
+            position: relative !important;
+            align-items: center !important;
+            padding-right: 45px !important;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #content {
+            position: relative;
+            width: calc(100% - 280px);
+            left: 280px;
+            transition: .3s ease;
+        }
+
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--light);
+            z-index: 2000;
+            font-family: var(--lato);
+            transition: .3s ease;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <img src="{{ asset('navbar/img/E-SPORTIFY.png') }}" alt="E-SPORTIFY" style="width: 180px; height: auto; margin-left: 10px;">
+        </a>
+        <ul class="side-menu top">
+            <li class="active">
+                <a href="{{ path('app_dashboard_admin') }}">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('admin_boutique') }}">
+                    <i class='bx bxs-shopping-bag-alt'></i>
+                    <span class="text">Mon Boutique</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-doughnut-chart'></i>
+                    <span class="text">Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_admin_dashboard') }}">
+                    <i class='bx bxs-message-dots'></i>
+                    <span class="text">Message</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-group'></i>
+                    <span class="text">Team</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="side-menu">
+            <li>
+                <a href="#">
+                    <i class='bx bxs-cog'></i>
+                    <span class="text">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_logout') }}" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+    <!-- SIDEBAR -->
+
+    <!-- CONTENT -->
+    <section id="content">
+        <!-- MAIN -->
+        <main>
+            <div class="container py-4">
+                <!-- Cartes de statistiques -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title">Total des réclamations</h6>
+                                        <h2 class="card-text">{{ stats.total }}</h2>
+                                    </div>
+                                    <i class="fas fa-clipboard-list fa-3x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title">En attente</h6>
+                                        <h2 class="card-text">{{ stats.enAttente }}</h2>
+                                    </div>
+                                    <i class="fas fa-clock fa-3x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title">Résolues</h6>
+                                        <h2 class="card-text">{{ stats.resolues }}</h2>
+                                    </div>
+                                    <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphique des réclamations -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    Évolution des réclamations (7 derniers jours)
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="reclamationsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liste des réclamations -->
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0 position-relative" style="display:inline-block;">
+                            Réclamations
+                            <span id="adminReclamationsBadge"
+                                  class="badge rounded-pill bg-danger badge-animate"
+                                  style="display:none; position:absolute; top:-10px; right:-30px; font-size:1rem; min-width:2rem; height:2rem; display:flex; align-items:center; justify-content:center; cursor:pointer;"
+                                  title="Nouvelles réclamations depuis votre dernière visite">
+    </span>
+                        </h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="adminReclamationsTable">
+                                <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Catégorie</th>
+                                    <th>Description</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for reclamation in allReclamations %}
+                                    <tr data-id="{{ reclamation.id }}">
+                                        <td>{{ reclamation.dateCreation|date('d/m/Y') }}</td>
+                                        <td>{{ reclamation.categorie }}</td>
+
+                                        <td class="description-cell">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">{{ reclamation.description|slice(0, 50) ~ (reclamation.description|length > 50 ? '...' : '') }}</div>
+                                                <button class="btn btn-sm btn-outline-info ms-2 translate-btn" data-text="{{ reclamation.description }}" data-target-lang="en" title="Translate to English">
+                                                    <i class="fas fa-language"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                        <span class="badge {% if reclamation.statut == 'En attente' %}bg-warning{% else %}bg-success{% endif %}">
+                                            {{ reclamation.statut }}
+                                        </span>
+                                        </td>
+                                        <td>
+
+                                            <a href="{{ path('app_admin_reponse', {'id': reclamation.id}) }}" class="btn btn-sm btn-success ms-1">
+                                                <i class="fas fa-reply"></i> Répondre
+                                            </a>
+                                            <a href="{{ path('app_admin_reclamation_pdf', {'id': reclamation.id}) }}" class="btn btn-sm btn-danger ms-1" target="_blank" title="Exporter en PDF">
+                                                <i class="fas fa-file-pdf"></i> PDF
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- MAIN -->
+    </section>
+    <!-- CONTENT -->
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Variable globale pour stocker l'état de traduction
+        window.translationState = new Map();
+
+        // Restaurer l'état des traductions depuis le localStorage
+        function restoreTranslationStates() {
+            const savedStates = localStorage.getItem('translationStates');
+            if (savedStates) {
+                const states = JSON.parse(savedStates);
+                Object.entries(states).forEach(([id, state]) => {
+                    if (state.isEnglish) {
+                        const button = document.querySelector(`button[data-reclamation-id="${id}"]`);
+                        if (button) {
+                            const container = button.closest('.d-flex').querySelector('.description-container');
+                            const originalText = container.querySelector('.original-text');
+                            const translatedText = container.querySelector('.translated-text');
+
+                            originalText.style.display = 'none';
+                            translatedText.textContent = state.translatedText;
+                            translatedText.style.display = 'block';
+                            button.style.backgroundColor = '#17a2b8';
+                            button.querySelector('i').style.color = 'white';
+                        }
+                    }
+                });
+            }
+        }
+
+        // Sauvegarder l'état des traductions dans le localStorage
+        function saveTranslationState(reclamationId, state) {
+            const savedStates = localStorage.getItem('translationStates') || '{}';
+            const states = JSON.parse(savedStates);
+            states[reclamationId] = state;
+            localStorage.setItem('translationStates', JSON.stringify(states));
+        }
+
+        async function translateDescription(button, text) {
+            if (!text) return;
+
+            const reclamationId = button.getAttribute('data-reclamation-id');
+            const container = button.closest('.d-flex').querySelector('.description-container');
+            const originalText = container.querySelector('.original-text');
+            const translatedText = container.querySelector('.translated-text');
+
+            const currentState = window.translationState.get(text) || {
+                isEnglish: false,
+                originalText: text,
+                translatedText: null
+            };
+
+            try {
+                if (currentState.isEnglish && currentState.originalText) {
+                    // Retour au français
+                    originalText.style.display = 'block';
+                    translatedText.style.display = 'none';
+                    button.style.backgroundColor = 'white';
+                    button.querySelector('i').style.color = '#17a2b8';
+                    currentState.isEnglish = false;
+                    saveTranslationState(reclamationId, currentState);
+                } else {
+                    if (!currentState.translatedText) {
+                        // Première traduction vers l'anglais
+                        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=fr|en`);
+                        const data = await response.json();
+
+                        if (data.responseStatus === 200 && data.responseData.translatedText) {
+                            currentState.translatedText = data.responseData.translatedText;
+                        } else {
+                            throw new Error(data.responseDetails || 'Erreur de traduction');
+                        }
+                    }
+
+                    // Afficher la traduction anglaise
+                    originalText.style.display = 'none';
+                    translatedText.textContent = currentState.translatedText;
+                    translatedText.style.display = 'block';
+                    button.style.backgroundColor = '#17a2b8';
+                    button.querySelector('i').style.color = 'white';
+                    currentState.isEnglish = true;
+                    currentState.translatedText = currentState.translatedText;
+                    saveTranslationState(reclamationId, currentState);
+                }
+
+                // Sauvegarder l'état
+                window.translationState.set(text, currentState);
+
+            } catch (error) {
+                console.error('Erreur de traduction:', error);
+                alert('Erreur lors de la traduction : ' + error.message);
+            }
+        }
+    </script>
+
+    <script>
+        async function translateText(text, targetLang) {
+            const sourceLang = targetLang === 'en' ? 'fr' : 'en';
+            try {
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`);
+                const data = await response.json();
+                if (data.responseStatus === 200 && data.responseData.translatedText) {
+                    return data.responseData.translatedText;
+                } else {
+                    throw new Error(data.responseDetails || 'Erreur de traduction');
+                }
+            } catch (error) {
+                console.error('Erreur de traduction:', error);
+                throw error;
+            }
+        }
+
+        // Attendre que le DOM soit chargé
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion des boutons de traduction
+            document.querySelectorAll('.translate-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const text = this.dataset.text;
+                    const targetLang = this.dataset.targetLang;
+                    const descriptionDiv = this.closest('.d-flex').querySelector('.flex-grow-1');
+
+                    try {
+                        const translatedText = await translateText(text, targetLang);
+                        const originalText = descriptionDiv.textContent;
+                        descriptionDiv.textContent = translatedText;
+
+                        // Toggle le bouton pour permettre de revenir au texte original
+                        this.dataset.text = translatedText;
+                        this.dataset.targetLang = targetLang === 'en' ? 'fr' : 'en';
+                        this.title = targetLang === 'en' ? 'Traduire en français' : 'Translate to English';
+                    } catch (error) {
+                        alert('Erreur lors de la traduction : ' + error.message);
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="{{ asset('dashboard/script.js') }}"></script>
+    <script src="{{ asset('js/bad-words.js') }}"></script>
+    <script src="{{ asset('js/admin-notifications.js') }}"></script>
+    <script src="{{ asset('js/admin-reclamations-refresh.js') }}"></script>
+
+    <script>
+        async function translateText(text, targetLang) {
+            const sourceLang = targetLang === 'en' ? 'fr' : 'en';
+            try {
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`);
+                const data = await response.json();
+                if (data.responseStatus === 200 && data.responseData.translatedText) {
+                    return data.responseData.translatedText;
+                } else {
+                    throw new Error(data.responseDetails || 'Erreur de traduction');
+                }
+            } catch (error) {
+                console.error('Erreur de traduction:', error);
+                throw error;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion des boutons de traduction
+            document.querySelectorAll('.translate-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const text = this.dataset.text;
+                    const targetLang = this.dataset.targetLang;
+                    const descriptionDiv = this.closest('.d-flex').querySelector('.flex-grow-1');
+
+                    try {
+                        const translatedText = await translateText(text, targetLang);
+                        const originalText = descriptionDiv.textContent;
+                        descriptionDiv.textContent = translatedText;
+
+                        // Toggle le bouton pour permettre de revenir au texte original
+                        this.dataset.text = translatedText;
+                        this.dataset.targetLang = targetLang === 'en' ? 'fr' : 'en';
+                        this.title = targetLang === 'en' ? 'Traduire en français' : 'Translate to English';
+                    } catch (error) {
+                        alert('Erreur lors de la traduction : ' + error.message);
+                    }
+                });
+            });
+        });
+    </script>
+    <!-- Toast notification -->
+    <div class="toast align-items-center text-bg-primary border-0 position-fixed bottom-0 end-0 m-4" id="adminNewReclamationToast" role="alert" aria-live="assertive" aria-atomic="true" style="z-index:9999; min-width:300px;">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-bell me-2"></i> <span id="adminNewReclamationCount"></span> nouvelle(s) réclamation(s) reçue(s) !
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('reclamationsChart').getContext('2d');
+
+            const labels = [
+                {% for date, counts in graphData %}
+                '{{ date|date("d/m") }}'{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            ];
+
+            const totalData = [
+                {% for date, counts in graphData %}
+                {{ counts.total }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            ];
+
+            const enAttenteData = [
+                {% for date, counts in graphData %}
+                {{ counts.enAttente }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            ];
+
+            const resoluesData = [
+                {% for date, counts in graphData %}
+                {{ counts.resolues }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            ];
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total des réclamations',
+                            data: totalData,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            fill: true
+                        },
+                        {
+                            label: 'En attente',
+                            data: enAttenteData,
+                            borderColor: 'rgb(255, 159, 64)',
+                            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                            fill: true
+                        },
+                        {
+                            label: 'Résolues',
+                            data: resoluesData,
+                            borderColor: 'rgb(54, 162, 235)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="{{ asset('dashboard/script.js') }}"></script>
+{% endblock %}

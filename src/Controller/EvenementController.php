@@ -22,7 +22,7 @@ final class EvenementController extends AbstractController
 {
     #[Route(name: 'app_post_index', methods: ['GET'])]
     public function index(Request $request, EntityManagerInterface $entityManager, PaginatorInterface $paginator): Response
-    { 
+    {
         $query = $entityManager
             ->getRepository(Post::class)
             ->createQueryBuilder('p')

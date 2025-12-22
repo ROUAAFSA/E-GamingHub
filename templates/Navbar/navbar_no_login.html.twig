@@ -1,0 +1,213 @@
+{# Remixicons #}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.css">
+
+<style>
+    /* Glassy Navbar styles for non-logged in users */
+    .nav-header {
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        background: rgba(171, 171, 171, 0.25) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        z-index: 1000;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .nav-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2rem;
+        height: 4.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .nav-navigation__logo img {
+        height: 50px;
+        width: auto;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .nav-navigation__menu {
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-navigation__close {
+        display: none;
+        font-size: 1.5rem;
+        color: #333;
+        cursor: pointer;
+    }
+
+    .nav-navigation__actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    /* Glassy Login Button */
+    .nav-navigation__login {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px) saturate(180%);
+        -webkit-backdrop-filter: blur(10px) saturate(180%);
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-navigation__login:hover {
+        background: rgba(255, 255, 255, 0.35);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .nav-navigation__login i {
+        font-size: 1.25rem;
+    }
+
+    .nav-navigation__toggle {
+        display: none;
+        font-size: 1.5rem;
+        color: white;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-navigation__toggle:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Mobile Responsive */
+    @media screen and (max-width: 1023px) {
+        .nav-navigation__menu {
+            position: fixed;
+            top: -100%;
+            left: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            padding: 4rem 2rem 2rem;
+            transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .nav-navigation__close {
+            display: block;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+        }
+
+        .nav-navigation__toggle {
+            display: block;
+        }
+
+        .show-menu {
+            top: 0 !important;
+        }
+
+        .nav-navigation__login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+    }
+
+    @media screen and (min-width: 1024px) {
+        .nav-navigation {
+            height: 5rem;
+        }
+    }
+
+    /* Enhanced glassy effect on scroll */
+    .nav-header.scrolled {
+        background: rgba(171, 171, 171, 0.35) !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+    }
+</style>
+
+<!--==================== HEADER ====================-->
+<header class="nav-header" id="navHeader">
+    <nav class="nav-navigation nav-container">
+        <a href="{{ path('app_home') }}" class="nav-navigation__logo">
+            <img src="{{ asset('assets/E-SPORTIFY.png') }}" alt="E-SPORTIFY">
+        </a>
+
+        <div class="nav-navigation__menu" id="nav-menu">
+            <!-- Close button -->
+            <div class="nav-navigation__close" id="nav-close">
+                <i class="ri-close-line"></i>
+            </div>
+        </div>
+
+        <div class="nav-navigation__actions">
+            <!-- Login button -->
+            <a href="{{ path('app_sign_in') }}" class="nav-navigation__login">
+                <i class="ri-login-box-line"></i>
+                <span>Connexion</span>
+            </a>
+
+            <!-- Toggle button -->
+            <div class="nav-navigation__toggle" id="nav-toggle">
+                <i class="ri-menu-line"></i>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<script>
+    // Mobile menu toggle
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    const navClose = document.getElementById('nav-close');
+
+    if (navToggle) {
+        navToggle.addEventListener('click', () => {
+            navMenu.classList.add('show-menu');
+        });
+    }
+
+    if (navClose) {
+        navClose.addEventListener('click', () => {
+            navMenu.classList.remove('show-menu');
+        });
+    }
+
+    // Enhanced glassy effect on scroll
+    const navHeader = document.getElementById('navHeader');
+    if (navHeader) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navHeader.classList.add('scrolled');
+            } else {
+                navHeader.classList.remove('scrolled');
+            }
+        });
+    }
+</script>

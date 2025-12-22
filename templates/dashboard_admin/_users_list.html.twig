@@ -1,0 +1,37 @@
+{% for utilisateur in utilisateurs %}
+<tr>
+    <td>
+        <img src="{{ asset(utilisateur.photo) }}" alt="Photo de profil">
+        <p>{{ utilisateur.nom }} {{ utilisateur.prenom }}</p>
+    </td>
+    <td>{{ utilisateur.email }}</td>
+    <td>
+        {% if utilisateur.role == 'admin' %}
+            <span class="status completed">Admin</span>
+        {% elseif utilisateur.role == 'joueur' %}
+            <span class="status process">Joueur</span>
+        {% elseif utilisateur.role == 'vendeur' %}
+            <span class="status pending">Vendeur</span>
+        {% else %}
+            <span class="status">{{ utilisateur.role }}</span>
+        {% endif %}
+    </td>
+    <td>
+        <button class="block-user" 
+            data-id="{{ utilisateur.id }}"
+            data-role="{{ utilisateur.role }}"
+            data-user="{{ utilisateur.prenom }} {{ utilisateur.nom }}"
+            data-blocked="{{ utilisateur.isBlocked ? 'true' : 'false' }}"
+            style="padding: 8px 15px; border-radius: 5px; border: none; cursor: pointer; {% if utilisateur.role == 'admin' %}display: none;{% else %}{% if utilisateur.isBlocked %}background-color: #f44336;{% else %}background-color: #4CAF50;{% endif %}color: white;{% endif %}">
+            {% if utilisateur.isBlocked %}
+                Débloquer
+            {% else %}
+                Bloquer
+            {% endif %}
+        </button>
+        {% if utilisateur.role == 'admin' %}
+            <span style="color: #666;">Non bloquable</span>
+        {% endif %}
+    </td>
+</tr>
+{% endfor %} 

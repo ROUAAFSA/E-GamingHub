@@ -1,0 +1,347 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard Admin - E-SPORTIFY{% endblock %}
+
+{% block stylesheets %}
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Poppins Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
+    <!-- Dashboard CSS - External file only -->
+    <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
+{% endblock %}
+
+{% block body %}
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <img src="{{ asset('navbar/img/E-SPORTIFY.png') }}" alt="E-SPORTIFY">
+        </a>
+
+        <ul class="side-menu top">
+            <li class="active">
+                <a href="{{ path('app_dashboard_admin') }}">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_admin_boutique') }}">
+                    <i class='bx bxs-shopping-bag-alt'></i>
+                    <span class="text">Boutique</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-doughnut-chart'></i>
+                    <span class="text">Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-message-dots'></i>
+                    <span class="text">Messages</span>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="side-menu">
+            <li>
+                <a href="#">
+                    <i class='bx bxs-cog'></i>
+                    <span class="text">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_logout') }}" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <!-- CONTENT -->
+    <section id="content">
+        <!-- MAIN -->
+        <main>
+            <div class="head-title">
+                <div class="left">
+                    <h1>Dashboard</h1>
+                    <ul class="breadcrumb">
+                        <li><a href="#">Dashboard</a></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li><a class="active" href="#">Home</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="box-info">
+                <li>
+                    <i class='bx bxs-game'></i>
+                    <span class="text">
+                        <h3>{{ stats.joueurs }}</h3>
+                        <p>Joueurs</p>
+                    </span>
+                </li>
+                <li>
+                    <i class='bx bxs-store'></i>
+                    <span class="text">
+                        <h3>{{ stats.vendeurs }}</h3>
+                        <p>Vendeurs</p>
+                    </span>
+                </li>
+                <li>
+                    <i class='bx bxs-trophy'></i>
+                    <span class="text">
+                        <h3>{{ stats.organisateurs }}</h3>
+                        <p>Organisateurs</p>
+                    </span>
+                </li>
+                <li>
+                    <i class='bx bxs-group'></i>
+                    <span class="text">
+                        <h3>{{ stats.total }}</h3>
+                        <p>Total Utilisateurs</p>
+                    </span>
+                </li>
+            </ul>
+
+            <div class="table-data">
+                <div class="order">
+                    <div class="head">
+                        <h3>Liste des Utilisateurs</h3>
+                        <div class="search-container">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Rechercher...">
+                            <i class='bx bx-search search-icon' id="searchBtn"></i>
+                        </div>
+                        <i class='bx bx-filter'></i>
+                        <i class='bx bx-pie-chart-alt-2' id="chartIcon"></i>
+                    </div>
+
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Bloquer utilisateur</th>
+                        </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                        {% for utilisateur in utilisateurs %}
+                            <tr>
+                                <td>
+                                    <img src="{{ asset(utilisateur.photo) }}" alt="Photo de profil">
+                                    <p>{{ utilisateur.nom }} {{ utilisateur.prenom }}</p>
+                                </td>
+                                <td>{{ utilisateur.email }}</td>
+                                <td>
+                                    {% if utilisateur.role == 'admin' %}
+                                        <span class="status completed">Admin</span>
+                                    {% elseif utilisateur.role == 'joueur' %}
+                                        <span class="status process">Joueur</span>
+                                    {% elseif utilisateur.role == 'vendeur' %}
+                                        <span class="status pending">Vendeur</span>
+                                    {% else %}
+                                        <span class="status">{{ utilisateur.role }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if utilisateur.role != 'admin' %}
+                                        <button class="block-user"
+                                                data-id="{{ utilisateur.id }}"
+                                                data-user="{{ utilisateur.prenom }} {{ utilisateur.nom }}"
+                                                data-blocked="{{ utilisateur.isBlocked ? 'true' : 'false' }}">
+                                            {% if utilisateur.isBlocked %}
+                                                Débloquer
+                                            {% else %}
+                                                Bloquer
+                                            {% endif %}
+                                        </button>
+                                    {% else %}
+                                        <span class="non-blockable">Non bloquable</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- Chart Modal -->
+    <div id="chartModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Répartition des Utilisateurs</h2>
+            <div class="chart-container">
+                <canvas id="roleChart"></canvas>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Search functionality
+        const searchBtn = document.getElementById('searchBtn');
+        const searchInput = document.getElementById('searchInput');
+        let searchTimeout = null;
+
+        searchBtn.addEventListener('click', () => {
+            searchInput.classList.toggle('active');
+            if (searchInput.classList.contains('active')) {
+                searchInput.focus();
+            }
+        });
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.trim();
+
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            searchTimeout = setTimeout(() => {
+                if (searchTerm === '') {
+                    window.location.reload();
+                } else {
+                    fetch(`/dashboard/admin/search?q=${encodeURIComponent(searchTerm)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('usersTableBody').innerHTML = data.html;
+                            initBlockButtons();
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            }, 300);
+        });
+
+        // Block/Unblock functionality
+        function initBlockButtons() {
+            document.querySelectorAll('.block-user').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const userId = this.getAttribute('data-id');
+                    const userName = this.getAttribute('data-user');
+                    const isBlocked = this.getAttribute('data-blocked') === 'true';
+
+                    const result = await Swal.fire({
+                        title: isBlocked ? 'Débloquer l\'utilisateur ?' : 'Bloquer l\'utilisateur ?',
+                        text: isBlocked ? `Débloquer ${userName} ?` : `Bloquer ${userName} ?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: isBlocked ? '#4CAF50' : '#f44336',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: isBlocked ? 'Oui, débloquer' : 'Oui, bloquer',
+                        cancelButtonText: 'Annuler'
+                    });
+
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch(`/dashboard/admin/toggle-block/${userId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                credentials: 'same-origin'
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success) {
+                                this.textContent = data.isBlocked ? 'Débloquer' : 'Bloquer';
+                                this.classList.toggle('blocked', data.isBlocked);
+                                this.setAttribute('data-blocked', data.isBlocked);
+
+                                await Swal.fire({
+                                    title: 'Succès !',
+                                    text: data.message,
+                                    icon: 'success',
+                                    confirmButtonColor: '#4CAF50'
+                                });
+                            }
+                        } catch (error) {
+                            await Swal.fire({
+                                title: 'Erreur !',
+                                text: 'Une erreur est survenue',
+                                icon: 'error',
+                                confirmButtonColor: '#f44336'
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
+        initBlockButtons();
+
+        // Chart Modal
+        const chartIcon = document.getElementById('chartIcon');
+        const chartModal = document.getElementById('chartModal');
+        const closeModal = document.querySelector('.close-modal');
+        let myChart = null;
+
+        const chartData = {
+            joueurs: {{ stats.joueurs }},
+            vendeurs: {{ stats.vendeurs }},
+            organisateurs: {{ stats.organisateurs }}
+        };
+
+        function createChart() {
+            const ctx = document.getElementById('roleChart').getContext('2d');
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Joueurs', 'Vendeurs', 'Organisateurs'],
+                    datasets: [{
+                        data: [chartData.joueurs, chartData.vendeurs, chartData.organisateurs],
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(255, 159, 64, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        chartIcon.addEventListener('click', () => {
+            chartModal.style.display = 'block';
+            createChart();
+        });
+
+        closeModal.addEventListener('click', () => {
+            chartModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === chartModal) {
+                chartModal.style.display = 'none';
+            }
+        });
+    </script>
+{% endblock %}
