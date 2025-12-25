@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Commandes{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Gestion des Commandes</h1>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="client" class="form-label">Rechercher un client</label>
+                        <input type="text" class="form-control" id="client" name="client" value="{{ app.request.query.get('client') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="statut" class="form-label">Statut</label>
+                        <select class="form-select" id="statut" name="statut">
+                            <option value="">Tous</option>
+                            <option value="en_attente" {% if app.request.query.get('statut') == 'en_attente' %}selected{% endif %}>En attente</option>
+                            <option value="validee" {% if app.request.query.get('statut') == 'validee' %}selected{% endif %}>Validée</option>
+                            <option value="expediee" {% if app.request.query.get('statut') == 'expediee' %}selected{% endif %}>Expédiée</option>
+                            <option value="remboursee" {% if app.request.query.get('statut') == 'remboursee' %}selected{% endif %}>Remboursée</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="dateDebut" class="form-label">Date début</label>
+                        <input type="date" class="form-control" id="dateDebut" name="dateDebut" value="{{ app.request.query.get('dateDebut') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="dateFin" class="form-label">Date fin</label>
+                        <input type="date" class="form-control" id="dateFin" name="dateFin" value="{{ app.request.query.get('dateFin') }}">
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Client</th>
+                        <th>Date</th>
+                        <th>Montant</th>
+                        <th>Paiement</th>
+                        <th>État</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for commande in commandes %}
+                    <tr>
+                        <td>{{ commande.id }}</td>
+                        <td>{{ commande.utilisateur.nom }}</td>
+                        <td>{{ commande.date|date('d/m/Y H:i') }}</td>
+                        <td>{{ commande.montant|number_format(2, ',', ' ') }} TND</td>
+                        <td>{{ commande.methodePaiement }}</td>
+                        <td>
+                            <form method="post" action="{{ path('admin_commande_edit', {'id': commande.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('edit' ~ commande.id) }}">
+                                <select name="statut" class="form-select form-select-sm" onchange="this.form.submit()">
+                                    <option value="en_attente" {% if commande.statut == 'en_attente' %}selected{% endif %}>En attente</option>
+                                    <option value="validee" {% if commande.statut == 'validee' %}selected{% endif %}>Validée</option>
+                                    <option value="expediee" {% if commande.statut == 'expediee' %}selected{% endif %}>Expédiée</option>
+                                    <option value="remboursee" {% if commande.statut == 'remboursee' %}selected{% endif %}>Remboursée</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="{{ path('admin_commande_show', {'id': commande.id}) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ path('admin_commande_facture', {'id': commande.id}) }}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %} 

@@ -1,0 +1,897 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration - Répondre à la réclamation{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+        <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
+    <style>
+        body {
+            background-color: white !important;
+        }
+        #content {
+            background-color: white !important;
+        }
+        .card {
+            background-color: white !important;
+        }
+        .card-header {
+            background-color: white !important;
+        }
+        .card-body {
+            background-color: white !important;
+        }
+        .breadcrumb {
+            background-color: white !important;
+        }
+        .list-group-item {
+            background-color: white !important;
+        }
+        .modal-content {
+            background-color: white !important;
+        }
+        .bg-light {
+            background-color: white !important;
+        }
+        .bg-dark-purple {
+            background-color: white !important;
+        }
+        .bg-oxford-blue {
+            background-color: white !important;
+        }
+
+        /* Styles pour la validation du formulaire */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        }
+
+        .form-control.is-valid {
+            border-color: #198754;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        }
+
+        .invalid-feedback {
+            display: none;
+            color: #dc3545;
+        }
+
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+
+        #char-count {
+            float: right;
+        }
+
+        .validation-error {
+            border: 1px solid #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .alert {
+            display: none;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .alert-validation {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-success-validation {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .char-count-warning {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .validation-alert {
+            display: none;
+            margin-top: 10px;
+        }
+
+        /* Styles pour la reconnaissance vocale */
+        .voice-input-wrapper {
+            position: relative;
+        }
+        
+        .translate-btn {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .translate-btn:hover {
+            color: #0d6efd;
+        }
+
+        .translate-btn.active {
+            color: #0d6efd;
+        }
+
+        .translation-dropdown {
+            position: absolute;
+            right: 40px;
+            top: calc(50% + 20px);
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+        }
+
+        .translation-dropdown.show {
+            display: block;
+        }
+
+        .translation-dropdown button {
+            display: block;
+            width: 100%;
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .translation-dropdown button:hover {
+            background-color: #f8f9fa;
+        }
+
+        .voice-input-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 50%;
+        }
+
+        .voice-input-btn:hover {
+            color: var(--text-purple);
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .voice-input-btn.recording {
+            color: #dc3545;
+            animation: pulse 1.5s infinite;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .voice-status {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .voice-status i {
+            color: #dc3545;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<!-- SIDEBAR -->
+<section id="sidebar">
+    <a href="#" class="brand">
+        <img src="{{ asset('navbar/img/E-SPORTIFY.png') }}" alt="E-SPORTIFY" style="width: 180px; height: auto; margin-left: 10px;">
+    </a>
+    <ul class="side-menu top">
+        <li class="active">
+            <a href="{{ path('app_dashboard_admin') }}">
+                <i class='bx bxs-dashboard' ></i>
+                <span class="text">Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class='bx bxs-shopping-bag-alt' ></i>
+                <span class="text">My Store</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class='bx bxs-doughnut-chart' ></i>
+                <span class="text">Analytics</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_salle_index') }}">
+                <i class='bx bxs-door-open'></i>
+                <span class="text">Gestion des Salles</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_reservation_salle_index') }}">
+                <i class='bx bxs-calendar'></i>
+                <span class="text">Réservations Salles</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_admin_dashboard') }}">
+                <i class='bx bxs-message-dots' ></i>
+                <span class="text">Message</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class='bx bxs-group' ></i>
+                <span class="text">Team</span>
+            </a>
+        </li>
+    </ul>
+    <ul class="side-menu">
+        <li>
+            <a href="#">
+                <i class='bx bxs-cog' ></i>
+                <span class="text">Settings</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_logout') }}" class="logout">
+                <i class='bx bxs-log-out-circle' ></i>
+                <span class="text">Logout</span>
+            </a>
+        </li>
+    </ul>
+</section>
+<!-- SIDEBAR -->
+
+<!-- CONTENT -->
+<section id="content">
+
+    <!-- MAIN -->
+    <main>
+<div class="container py-4">
+    
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    <div class="row">
+        <!-- Colonne de gauche: Détails de la réclamation -->
+        <div class="col-md-5">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="h4 mb-0">Détails de la réclamation</h2>
+                        <span class="badge {{ reclamation.statut|lower|replace({' ': '-'}) }} bg-light text-dark">{{ reclamation.statut }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Informations générales</h5>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>ID</strong>
+                            <span>{{ reclamation.id }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Date de création</strong>
+                            <span>{{ reclamation.date_creation|date('d/m/Y H:i') }}</span>
+                        </li>
+                        {% if reclamation.categorie %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Catégorie</strong>
+                            <span class="badge bg-info">{{ reclamation.categorie }}</span>
+                        </li>
+                        {% endif %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Archivée</strong>
+                            <span>{{ reclamation.archived ? 'Oui' : 'Non' }}</span>
+                        </li>
+                    </ul>
+                    
+                    <h5 class="card-title mb-3">Description</h5>
+                    <div class="p-3 bg-light rounded mb-4">
+                        {{ reclamation.description|nl2br }}
+                    </div>
+                    
+                    {% if reclamation.image_path or reclamation.pdf_path %}
+                        <h5 class="card-title mb-3">Pièces jointes</h5>
+                        <div class="list-group mb-3">
+                            {% if reclamation.image_path %}
+                                <div class="list-group-item">
+                                    <h6 class="mb-2">Image</h6>
+                                    <div class="text-center mb-2">
+                                        <img src="{{ asset('uploads/images/' ~ reclamation.image_path) }}" 
+                                             class="img-fluid thumbnail" style="max-height: 150px;" alt="Image jointe">
+                                    </div>
+                                    <div class="d-grid">
+                                        <a href="{{ asset('uploads/images/' ~ reclamation.image_path) }}" 
+                                           class="btn btn-sm btn-outline-info" target="_blank">
+                                            <i class="fas fa-search-plus me-1"></i> Voir en taille réelle
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if reclamation.pdf_path %}
+                                <div class="list-group-item">
+                                    <h6 class="mb-2">Document PDF</h6>
+                                    <div class="d-grid">
+                                        <a href="{{ asset('uploads/pdf/' ~ reclamation.pdf_path) }}" 
+                                           class="btn btn-sm btn-outline-danger" target="_blank">
+                                            <i class="fas fa-file-pdf me-1"></i> Consulter le PDF
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonne de droite: Formulaire de réponse -->
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h2 class="h4 mb-0">
+                        <i class="fas fa-reply me-2"></i>Formulaire de réponse à la réclamation
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Historique des réponses -->
+                    {% if reclamation.reponses|length > 0 %}
+                        <div class="mb-4">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-history me-1"></i> Historique des réponses 
+                                <span class="badge bg-secondary">{{ reclamation.reponses|length }}</span>
+                            </h5>
+                            <div class="list-group mb-4">
+                                {% for reponse in reclamation.reponses %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between mb-2">
+                                            <h6 class="mb-0 text-primary">Réponse #{{ reponse.id }}</h6>
+                                            <small class="text-muted">{{ reponse.date_creation|date('d/m/Y H:i') }}</small>
+                                        </div>
+                                        <p class="mb-2">{{ reponse.contenu|nl2br }}</p>
+                                        
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Formulaire de réponse -->
+                    <form method="post" action="{{ path('app_admin_reponse_submit', {'id': reclamation.id}) }}" class="admin-reponse-form" id="reponseForm" novalidate>
+                        <!-- Alertes de validation -->
+                        <div class="alert alert-danger validation-alert" id="emptyAlert" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Erreur :</strong> La réponse ne peut pas être vide.
+                        </div>
+                        
+                        <div class="alert alert-warning validation-alert" id="minLengthAlert" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Attention :</strong> La réponse doit contenir au moins 10 caractères.
+                        </div>
+                        
+                        <div class="alert alert-warning validation-alert" id="maxLengthAlert" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Attention :</strong> La réponse ne peut pas dépasser 1000 caractères.
+                        </div>
+                        
+                        <div class="alert alert-success validation-alert" id="validAlert" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            La réponse est valide.
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="admin-reponse-content" class="form-label fw-bold">Votre réponse <span class="text-danger">*</span></label>
+                            <div class="voice-input-wrapper">
+                                <textarea name="reponse" id="admin-reponse-content" rows="7" class="form-control" 
+                                        placeholder="Saisissez votre réponse à la réclamation ici ou utilisez le microphone pour dicter..." 
+                                        minlength="10" maxlength="1000" required></textarea>
+                                <button type="button" class="translate-btn" id="translateBtn">
+                                    <i class="fas fa-language"></i>
+                                </button>
+                                <button type="button" class="voice-input-btn" id="voiceInputBtn">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <div class="translation-dropdown" id="translationDropdown">
+                                    <button type="button" data-lang="en">Traduire en Anglais</button>
+                                    <button type="button" data-lang="fr">Traduire en Français</button>
+                                </div>
+                                <div class="invalid-feedback" id="reponse-error"></div>
+                            </div>
+                            <div class="form-text d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-info-circle me-1"></i> La réponse doit contenir entre 10 et 1000 caractères.</span>
+                                <span id="char-count">0/1000</span>
+                            </div>
+                        </div>
+                        
+                        
+                            
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('app_dashboard_admin') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-success" id="submitBtn">
+                                <i class="fas fa-paper-plane me-1"></i> Envoyer la réponse
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Indicateur de statut de la reconnaissance vocale -->
+<div class="voice-status" id="voiceStatus">
+    <i class="fas fa-microphone-alt me-2"></i>
+    <span>Écoute en cours...</span>
+</div>
+    </main>
+    <!-- MAIN -->
+</section>
+<!-- CONTENT -->
+{% endblock %}
+
+{% block original_content %}
+<!-- Colonne de gauche: Détails de la réclamation -->
+<div class="col-md-5">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="h4 mb-0">Détails de la réclamation</h2>
+                <span class="badge {{ reclamation.statut|lower|replace({' ': '-'}) }} bg-light text-dark">{{ reclamation.statut }}</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title mb-3">Informations générales</h5>
+            <ul class="list-group list-group-flush mb-4">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>ID</strong>
+                    <span>{{ reclamation.id }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Date de création</strong>
+                    <span>{{ reclamation.date_creation|date('d/m/Y H:i') }}</span>
+                </li>
+                {% if reclamation.categorie %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Catégorie</strong>
+                    <span class="badge bg-info">{{ reclamation.categorie }}</span>
+                </li>
+                {% endif %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Archivée</strong>
+                    <span>{{ reclamation.archived ? 'Oui' : 'Non' }}</span>
+                </li>
+            </ul>
+            
+            <h5 class="card-title mb-3">Description</h5>
+            <div class="p-3 bg-light rounded mb-4">
+                {{ reclamation.description|nl2br }}
+            </div>
+            
+            {% if reclamation.image_path or reclamation.pdf_path %}
+                <h5 class="card-title mb-3">Pièces jointes</h5>
+                <div class="list-group mb-3">
+                    {% if reclamation.image_path %}
+                        <div class="list-group-item">
+                            <h6 class="mb-2">Image</h6>
+                            <div class="text-center mb-2">
+                                <img src="{{ asset('uploads/images/' ~ reclamation.image_path) }}" 
+                                     class="img-fluid thumbnail" style="max-height: 150px;" alt="Image jointe">
+                            </div>
+                            <div class="d-grid">
+                                <a href="{{ asset('uploads/images/' ~ reclamation.image_path) }}" 
+                                   class="btn btn-sm btn-outline-info" target="_blank">
+                                    <i class="fas fa-search-plus me-1"></i> Voir en taille réelle
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if reclamation.pdf_path %}
+                        <div class="list-group-item">
+                            <h6 class="mb-2">Document PDF</h6>
+                            <div class="d-grid">
+                                <a href="{{ asset('uploads/pdf/' ~ reclamation.pdf_path) }}" 
+                                   class="btn btn-sm btn-outline-danger" target="_blank">
+                                    <i class="fas fa-file-pdf me-1"></i> Consulter le PDF
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            <div class="d-grid mt-4">
+                <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Retour à la réclamation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Colonne de droite: Formulaire de réponse -->
+<div class="col-md-7">
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h2 class="h4 mb-0">
+                <i class="fas fa-reply me-2"></i>Formulaire de réponse à la réclamation
+            </h2>
+        </div>
+        <div class="card-body">
+            <!-- Historique des réponses -->
+            {% if reclamation.reponses|length > 0 %}
+                <div class="mb-4">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-history me-1"></i> Historique des réponses 
+                        <span class="badge bg-secondary">{{ reclamation.reponses|length }}</span>
+                    </h5>
+                    <div class="list-group mb-4">
+                        {% for reponse in reclamation.reponses %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between mb-2">
+                                    <h6 class="mb-0 text-primary">Réponse #{{ reponse.id }}</h6>
+                                    <small class="text-muted">{{ reponse.date_creation|date('d/m/Y H:i') }}</small>
+                                </div>
+                                <p class="mb-2">{{ reponse.contenu|nl2br }}</p>
+                                
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if reclamation.reponses is empty %}
+<!-- Formulaire de réponse -->
+<form method="post" action="{{ path('app_admin_reponse_submit', {'id': reclamation.id}) }}" class="admin-reponse-form" id="reponseForm" novalidate>
+                    <!-- Alertes de validation -->
+                    <div class="alert alert-danger validation-alert" id="emptyAlert" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Erreur :</strong> La réponse ne peut pas être vide.
+                    </div>
+                    
+                    <div class="alert alert-warning validation-alert" id="minLengthAlert" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Attention :</strong> La réponse doit contenir au moins 10 caractères.
+                    </div>
+                    
+                    <div class="alert alert-warning validation-alert" id="maxLengthAlert" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Attention :</strong> La réponse ne peut pas dépasser 1000 caractères.
+                    </div>
+                    
+                    <div class="alert alert-success validation-alert" id="validAlert" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        La réponse est valide.
+                    </div>
+                
+                <div class="alert alert-warning validation-alert" id="minLengthAlert" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Attention :</strong> La réponse doit contenir au moins 10 caractères.
+                </div>
+                
+                <div class="alert alert-warning validation-alert" id="maxLengthAlert" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Attention :</strong> La réponse ne peut pas dépasser 1000 caractères.
+                </div>
+                
+                <div class="alert alert-success validation-alert" id="validAlert" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    La réponse est valide.
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="admin-reponse-content" class="form-label fw-bold">Votre réponse <span class="text-danger">*</span></label>
+                    <div class="voice-input-wrapper">
+                        <textarea name="reponse" id="admin-reponse-content" rows="7" class="form-control" 
+                                placeholder="Saisissez votre réponse à la réclamation ici ou utilisez le microphone pour dicter..." 
+                                minlength="10" maxlength="1000" required></textarea>
+                        <button type="button" class="voice-input-btn" id="voiceInputBtn" title="Activer la dictée vocale">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <div class="form-text d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-info-circle me-1"></i> La réponse doit contenir entre 10 et 1000 caractères.</span>
+                        <span id="char-count">0/1000</span>
+                    </div>
+                </div>
+                
+                
+                    
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('app_dashboard_admin') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-success" id="submitBtn">
+                        <i class="fas fa-paper-plane me-1"></i> Envoyer la réponse
+                    </button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('dashboard/script.js') }}"></script>
+    <script src="{{ asset('js/bad-words.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('reponseForm');
+            const textarea = document.getElementById('admin-reponse-content');
+            const charCount = document.getElementById('char-count');
+            const voiceInputBtn = document.getElementById('voiceInputBtn');
+            const voiceStatus = document.getElementById('voiceStatus');
+            
+            // Éléments des alertes
+            const emptyAlert = document.getElementById('emptyAlert');
+            const minLengthAlert = document.getElementById('minLengthAlert');
+            const maxLengthAlert = document.getElementById('maxLengthAlert');
+            const validAlert = document.getElementById('validAlert');
+            
+            let isRecording = false;
+            let recognition = null;
+
+            // Configuration de la reconnaissance vocale
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'fr-FR';
+
+                recognition.onresult = function(event) {
+                    const result = event.results[event.results.length - 1];
+                    if (result.isFinal) {
+                        const text = result[0].transcript;
+                        // Vérifier les bad words avant d'ajouter le texte
+                        const tempInput = document.createElement('input');
+                        tempInput.value = text;
+                        
+                        if (checkBadWords(tempInput)) {
+                            textarea.value += (textarea.value ? ' ' : '') + text;
+                            validateForm();
+                        } else {
+                            // Arrêter l'enregistrement si un bad word est détecté
+                            stopRecording();
+                        }
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Erreur de reconnaissance vocale:', event.error);
+                    stopRecording();
+                    alert('Une erreur est survenue avec la reconnaissance vocale. Veuillez réessayer.');
+                };
+
+                recognition.onend = function() {
+                    if (isRecording) {
+                        recognition.start();
+                    }
+                };
+            } else {
+                voiceInputBtn.style.display = 'none';
+                console.warn('La reconnaissance vocale n\'est pas supportée par ce navigateur.');
+            }
+
+            function startRecording() {
+                isRecording = true;
+                voiceInputBtn.classList.add('recording');
+                voiceStatus.style.display = 'block';
+                
+                try {
+                    recognition.start();
+                } catch (e) {
+                    if (e.name === 'InvalidStateError') {
+                        recognition.stop();
+                        setTimeout(() => recognition.start(), 200);
+                    }
+                }
+            }
+
+            function stopRecording() {
+                if (!isRecording) return;
+                
+                isRecording = false;
+                voiceInputBtn.classList.remove('recording');
+                voiceStatus.style.display = 'none';
+                recognition.stop();
+            }
+
+            function toggleRecording() {
+                if (!recognition) {
+                    alert('La reconnaissance vocale n\'est pas supportée par votre navigateur.');
+                    return;
+                }
+
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            }
+
+            // Configuration de la traduction
+            async function translateText(text, targetLang) {
+                try {
+                    const sourceLang = targetLang === 'en' ? 'fr' : 'en';
+                    const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`);
+                    const data = await response.json();
+                    
+                    if (data.responseStatus === 200 && data.responseData.translatedText) {
+                        return data.responseData.translatedText;
+                    } else {
+                        throw new Error(data.responseDetails || 'Erreur de traduction');
+                    }
+                } catch (error) {
+                    console.error('Erreur de traduction:', error);
+                    alert('Une erreur est survenue lors de la traduction. Veuillez réessayer.');
+                    return null;
+                }
+            }
+
+            function setupTranslation() {
+                const translateBtn = document.getElementById('translateBtn');
+                const dropdown = document.getElementById('translationDropdown');
+                
+                translateBtn.addEventListener('click', () => {
+                    dropdown.classList.toggle('show');
+                });
+
+                dropdown.querySelectorAll('button').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const targetLang = button.dataset.lang;
+                        const text = textarea.value.trim();
+                        
+                        if (text) {
+                            const translatedText = await translateText(text, targetLang);
+                            if (translatedText) {
+                                textarea.value = translatedText;
+                                validateForm();
+                            }
+                        }
+                        
+                        dropdown.classList.remove('show');
+                    });
+                });
+
+                // Fermer le dropdown si on clique ailleurs
+                document.addEventListener('click', (e) => {
+                    if (!translateBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            }
+
+            // Configuration du bouton de traduction
+            setupTranslation();
+
+            // Gestionnaire d'événement pour le bouton du microphone
+            voiceInputBtn.addEventListener('click', toggleRecording);
+
+            function validateForm(e) {
+                const content = textarea.value.trim();
+                let isValid = true;
+
+                hideAllAlerts();
+
+                if (content.length === 0) {
+                    showAlert(emptyAlert);
+                    isValid = false;
+                } else if (content.length < 10) {
+                    showAlert(minLengthAlert);
+                    isValid = false;
+                } else if (content.length > 1000) {
+                    showAlert(maxLengthAlert);
+                    isValid = false;
+                } else {
+                    showAlert(validAlert);
+                }
+
+                // Mise à jour du compteur avec style d'avertissement
+                charCount.textContent = `${content.length}/1000`;
+                if (content.length > 1000) {
+                    charCount.classList.add('char-count-warning');
+                } else {
+                    charCount.classList.remove('char-count-warning');
+                }
+
+                if (!isValid && e) {
+                    e.preventDefault();
+                    textarea.focus();
+                }
+
+                return isValid;
+            }
+
+            // Validation en temps réel
+            textarea.addEventListener('input', function() {
+                validateForm();
+            });
+
+            // Validation à la soumission
+            form.addEventListener('submit', function(e) {
+                if (!validateForm(e)) {
+                    e.preventDefault();
+                    // Scroll vers la première alerte visible
+                    const firstAlert = document.querySelector('.validation-alert[style="display: block;"]');
+                    if (firstAlert) {
+                        firstAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+
+            // Validation initiale
+            validateForm();
+        });
+    </script>
+{% endblock %} 

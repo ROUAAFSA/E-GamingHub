@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Codes Promo{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Gestion des Codes Promo</h1>
+            <a href="{{ path('admin_code_promo_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nouveau code promo
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>Réduction</th>
+                        <th>Validité</th>
+                        <th>Utilisations</th>
+                        <th>État</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for code in codes_promo %}
+                    <tr>
+                        <td>{{ code.code }}</td>
+                        <td>{{ code.description }}</td>
+                        <td>
+                            {% if code.montantFixe %}
+                                {{ code.montantFixe|number_format(2, ',', ' ') }} TND
+                            {% elseif code.pourcentage %}
+                                {{ code.pourcentage }}%
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if code.dateExpiration %}
+                                Jusqu'au {{ code.dateExpiration|date('d/m/Y') }}
+                            {% else %}
+                                Sans limite
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ code.nbUtilisations }}
+                            {% if code.nbUtilisationsMax %}
+                                / {{ code.nbUtilisationsMax }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{{ path('admin_code_promo_toggle', {'id': code.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ code.id) }}">
+                                <button type="submit" class="btn btn-sm {% if code.actif %}btn-success{% else %}btn-danger{% endif %}">
+                                    {% if code.actif %}
+                                        <i class="fas fa-check"></i> Actif
+                                    {% else %}
+                                        <i class="fas fa-times"></i> Inactif
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="{{ path('admin_code_promo_edit', {'id': code.id}) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="post" action="{{ path('admin_code_promo_delete', {'id': code.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce code promo ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ code.id) }}">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %} 

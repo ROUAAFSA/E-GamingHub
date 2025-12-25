@@ -1,0 +1,240 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réclamations résolues{% endblock %}
+
+{% block stylesheets %}
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
+    <style>
+        body {
+            background-color: white !important;
+        }
+        #content {
+            background-color: white !important;
+        }
+        .card {
+            background-color: white !important;
+        }
+        .card-header {
+            background-color: white !important;
+        }
+        .card-body {
+            background-color: white !important;
+        }
+        .breadcrumb {
+            background-color: white !important;
+        }
+        .list-group-item {
+            background-color: white !important;
+        }
+        .modal-content {
+            background-color: white !important;
+        }
+        .bg-light {
+            background-color: white !important;
+        }
+        .bg-dark-purple {
+            background-color: white !important;
+        }
+        .bg-oxford-blue {
+            background-color: white !important;
+        }
+        table {
+            background-color: white !important;
+        }
+        .table {
+            color: #333 !important;
+        }
+        h1, .h1 {
+            color: #333 !important;
+        }
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<!-- SIDEBAR -->
+<section id="sidebar">
+    <a href="#" class="brand">
+        <img src="{{ asset('navbar/img/E-SPORTIFY.png') }}" alt="E-SPORTIFY" style="width: 180px; height: auto; margin-left: 10px;">
+    </a>
+    <ul class="side-menu top">
+        <li class="active">
+            <a href="{{ path('app_dashboard_admin') }}">
+                <i class='bx bxs-dashboard' ></i>
+                <span class="text">Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class='bx bxs-shopping-bag-alt' ></i>
+                <span class="text">My Store</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class='bx bxs-doughnut-chart' ></i>
+                <span class="text">Analytics</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_admin_dashboard') }}">
+                <i class='bx bxs-message-dots' ></i>
+                <span class="text">Message</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class='bx bxs-group' ></i>
+                <span class="text">Team</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_salle_index') }}">
+                <i class='bx bxs-door-open'></i>
+                <span class="text">Gestion des Salles</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_reservation_salle_index') }}">
+                <i class='bx bxs-calendar'></i>
+                <span class="text">Réservations Salles</span>
+            </a>
+        </li>
+    </ul>
+    <ul class="side-menu">
+        <li>
+            <a href="#">
+                <i class='bx bxs-cog' ></i>
+                <span class="text">Settings</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_logout') }}" class="logout">
+                <i class='bx bxs-log-out-circle' ></i>
+                <span class="text">Logout</span>
+            </a>
+        </li>
+    </ul>
+</section>
+<!-- SIDEBAR -->
+
+<!-- CONTENT -->
+<section id="content">
+    <!-- MAIN -->
+    <main>
+        <div class="container mt-4">
+            <h1>Réclamations résolues</h1>
+
+            {% if reclamations is empty %}
+                <div class="alert alert-info">
+                    Aucune réclamation résolue pour le moment.
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Description</th>
+                                <th>Catégorie</th>
+                                <th>Date de création</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reclamation in reclamations %}
+                                <tr>
+                                    <td>#{{ reclamation.id }}</td>
+                                    <td class="description-cell">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">{{ reclamation.description|slice(0, 100) }}...</div>
+                                            <button class="btn btn-sm btn-outline-info ms-2 translate-btn" data-text="{{ reclamation.description }}" data-target-lang="en" title="Translate to English">
+                                                <i class="fas fa-language"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td>{{ reclamation.categorie }}</td>
+                                    <td>{{ reclamation.dateCreation|date('d/m/Y H:i') }}</td>
+                                    <td>
+                                        <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i> Voir
+                                        </a>
+                                        <form method="post" action="{{ path('app_reclamation_archive', {'id': reclamation.id}) }}" style="display: inline-block">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('archive' ~ reclamation.id) }}">
+                                            <button class="btn btn-sm btn-secondary" onclick="return confirm('Êtes-vous sûr de vouloir archiver cette réclamation ?')">
+                                                <i class="fas fa-archive"></i> Archiver
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+
+            <a href="{{ path('app_admin_dashboard') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+            </a>
+        </div>
+    </main>
+    <!-- MAIN -->
+</section>
+<!-- CONTENT -->
+{% endblock %}
+
+{% block javascripts %}
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('dashboard/script.js') }}"></script>
+    <script>
+    async function translateText(text, targetLang) {
+        const sourceLang = targetLang === 'en' ? 'fr' : 'en';
+        try {
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`);
+            const data = await response.json();
+            if (data.responseStatus === 200 && data.responseData.translatedText) {
+                return data.responseData.translatedText;
+            } else {
+                throw new Error(data.responseDetails || 'Erreur de traduction');
+            }
+        } catch (error) {
+            console.error('Erreur de traduction:', error);
+            throw error;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des boutons de traduction
+        document.querySelectorAll('.translate-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const text = this.dataset.text;
+                const targetLang = this.dataset.targetLang;
+                const descriptionDiv = this.closest('.d-flex').querySelector('.flex-grow-1');
+                
+                try {
+                    const translatedText = await translateText(text, targetLang);
+                    const originalText = descriptionDiv.textContent;
+                    descriptionDiv.textContent = translatedText;
+                    
+                    // Toggle le bouton pour permettre de revenir au texte original
+                    this.dataset.text = translatedText;
+                    this.dataset.targetLang = targetLang === 'en' ? 'fr' : 'en';
+                    this.title = targetLang === 'en' ? 'Traduire en français' : 'Translate to English';
+                } catch (error) {
+                    alert('Erreur lors de la traduction : ' + error.message);
+                }
+            });
+        });
+    });
+    </script>
+{% endblock %} 

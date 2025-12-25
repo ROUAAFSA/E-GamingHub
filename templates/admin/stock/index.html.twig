@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Stocks{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Gestion des Stocks</h1>
+
+        {% if produitsEnAlerte|length > 0 %}
+            <div class="alert alert-warning">
+                <h5>Produits en alerte de stock :</h5>
+                <ul class="mb-0">
+                    {% for produit in produitsEnAlerte %}
+                        <li>{{ produit.nom }} (Stock: {{ produit.stock }}, Seuil: {{ produit.seuilAlerte }})</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Stock actuel</th>
+                        <th>Seuil d'alerte</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for produit in produits %}
+                    <tr>
+                        <td>{{ produit.nom }}</td>
+                        <td>
+                            <form method="post" action="{{ path('admin_stock_edit', {'id': produit.id}) }}" class="row g-2">
+                                <input type="hidden" name="_token" value="{{ csrf_token('edit' ~ produit.id) }}">
+                                <div class="col-auto">
+                                    <input type="number" name="stock" value="{{ produit.stock }}" class="form-control form-control-sm" style="width: 100px">
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-sm btn-primary">Mettre à jour</button>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" action="{{ path('admin_stock_edit', {'id': produit.id}) }}" class="row g-2">
+                                <input type="hidden" name="_token" value="{{ csrf_token('edit' ~ produit.id) }}">
+                                <div class="col-auto">
+                                    <input type="number" name="seuilAlerte" value="{{ produit.seuilAlerte }}" class="form-control form-control-sm" style="width: 100px">
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-sm btn-primary">Mettre à jour</button>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#reapproModal{{ produit.id }}">
+                                <i class="fas fa-plus"></i> Réapprovisionner
+                            </button>
+                            <a href="{{ path('admin_stock_mouvements', {'id': produit.id}) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-history"></i> Historique
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Modal Réapprovisionnement -->
+                    <div class="modal fade" id="reapproModal{{ produit.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Réapprovisionner {{ produit.nom }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form method="post" action="{{ path('admin_stock_reapprovisionner', {'id': produit.id}) }}">
+                                    <div class="modal-body">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('reappro' ~ produit.id) }}">
+                                        <div class="mb-3">
+                                            <label for="quantite{{ produit.id }}" class="form-label">Quantité à ajouter</label>
+                                            <input type="number" class="form-control" id="quantite{{ produit.id }}" name="quantite" required min="1">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="commentaire{{ produit.id }}" class="form-label">Commentaire</label>
+                                            <textarea class="form-control" id="commentaire{{ produit.id }}" name="commentaire" rows="2"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                        <button type="submit" class="btn btn-success">Réapprovisionner</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %} 

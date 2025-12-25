@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if code_promo.id %}
+        Modifier le code promo
+    {% else %}
+        Nouveau code promo
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>
+            {% if code_promo.id %}
+                Modifier le code promo
+            {% else %}
+                Nouveau code promo
+            {% endif %}
+        </h1>
+
+        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form_row(form.code) }}
+                        {{ form_row(form.description) }}
+                        {{ form_row(form.montantFixe) }}
+                        {{ form_row(form.pourcentage) }}
+                        {{ form_row(form.montantMinimumPanier) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.dateExpiration) }}
+                        {{ form_row(form.nbUtilisationsMax) }}
+                        {{ form_row(form.nbUtilisationsParUtilisateur) }}
+                        {{ form_row(form.produitSpecifique) }}
+                        {{ form_row(form.actif) }}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">
+                    {% if code_promo.id %}
+                        Mettre à jour
+                    {% else %}
+                        Créer
+                    {% endif %}
+                </button>
+                <a href="{{ path('admin_code_promo_index') }}" class="btn btn-secondary">Retour à la liste</a>
+            </div>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const montantFixeInput = document.querySelector('[name="{{ form.montantFixe.vars.full_name }}"]');
+    const pourcentageInput = document.querySelector('[name="{{ form.pourcentage.vars.full_name }}"]');
+
+    function updateFields(source) {
+        if (source === 'montant' && montantFixeInput.value) {
+            pourcentageInput.value = '';
+            pourcentageInput.disabled = true;
+        } else if (source === 'pourcentage' && pourcentageInput.value) {
+            montantFixeInput.value = '';
+            montantFixeInput.disabled = true;
+        } else {
+            montantFixeInput.disabled = false;
+            pourcentageInput.disabled = false;
+        }
+    }
+
+    montantFixeInput.addEventListener('input', () => updateFields('montant'));
+    pourcentageInput.addEventListener('input', () => updateFields('pourcentage'));
+
+    // Initial state
+    if (montantFixeInput.value) {
+        updateFields('montant');
+    } else if (pourcentageInput.value) {
+        updateFields('pourcentage');
+    }
+});
+</script>
+{% endblock %} 

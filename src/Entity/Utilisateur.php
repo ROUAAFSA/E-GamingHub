@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'Cet email est déjà utilisé')]
 class Utilisateur implements PasswordAuthenticatedUserInterface
-{   
+{
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

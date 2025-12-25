@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% block title %}Réclamation #{{ reclamation.id }}{% endblock %}
+{% block body %}
+    <div style="text-align:center;margin-bottom:30px;">
+        <span style="font-size:2em;font-weight:bold;">Réclamation #{{ reclamation.id }}</span>
+    </div>
+    <table style="width:80%;margin:0 auto 20px auto;border-collapse:collapse;font-size:1.1em;">
+        <tr>
+            <th style="text-align:left;padding:8px;border:1px solid #ccc;background:#f5f5f5;">Date</th>
+            <td style="padding:8px;border:1px solid #ccc;">{{ reclamation.dateCreation ? reclamation.dateCreation|date('d/m/Y H:i') : '' }}</td>
+        </tr>
+        <tr>
+            <th style="text-align:left;padding:8px;border:1px solid #ccc;background:#f5f5f5;">Catégorie</th>
+            <td style="padding:8px;border:1px solid #ccc;">{{ reclamation.categorie }}</td>
+        </tr>
+        <tr>
+            <th style="text-align:left;padding:8px;border:1px solid #ccc;background:#f5f5f5;">Description</th>
+            <td style="padding:8px;border:1px solid #ccc;">{{ reclamation.description }}</td>
+        </tr>
+        <tr>
+            <th style="text-align:left;padding:8px;border:1px solid #ccc;background:#f5f5f5;">Statut</th>
+            <td style="padding:8px;border:1px solid #ccc;">{{ reclamation.statut }}</td>
+        </tr>
+    </table>
+    {% if reclamation.image is defined and reclamation.image %}
+        <div style="text-align:center;margin-top:20px;">
+            <img src="{{ asset('uploads/reclamations/' ~ reclamation.image) }}" style="max-width:300px;max-height:300px;display:inline-block;border:1px solid #888;" alt="Image de la réclamation">
+        </div>
+    {% endif %}
+{% endblock %}

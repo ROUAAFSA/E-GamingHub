@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Entity;
-use App\Repository\ProduitRepository;
+
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ProduitRepository;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: ProduitRepository::class)]
-
 class Produit
 {
     #[ORM\Id]
@@ -25,24 +27,26 @@ class Produit
 
     #[ORM\Column(type: 'integer')]
     #[Assert\PositiveOrZero(message: 'La quantité doit être un entier positif.')]
-    private ?int $quantite = null;
+    private ?int $stock = null;
 
-    public function getQuantite(): ?int
-    {
-        return $this->quantite;
-    }
-
-    public function setQuantite(?int $quantite): void
-    {
-        $this->quantite = $quantite;
-    }
-
-
+    #[ORM\Column(type: 'integer')]
+    #[Assert\PositiveOrZero(message: 'Le seuil d\'alerte doit être un entier positif.')]
+    private ?int $seuilAlerte = 5;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image = null;
 
+    #[ORM\ManyToOne(targetEntity: Categorie::class, inversedBy: 'produits')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Categorie $categorie = null;
 
+    #[ORM\OneToMany(mappedBy: 'produit', targetEntity: MouvementStock::class)]
+    private $mouvementsStock;
+
+    public function __construct()
+    {
+        $this->mouvementsStock = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -93,7 +97,16 @@ class Produit
         return $this;
     }
 
+    public function getSeuilAlerte(): ?int
+    {
+        return $this->seuilAlerte;
+    }
 
+    public function setSeuilAlerte(int $seuilAlerte): self
+    {
+        $this->seuilAlerte = $seuilAlerte;
+        return $this;
+    }
 
     public function getImage(): ?string
     {
@@ -106,4 +119,68 @@ class Produit
         return $this;
     }
 
+    public function getCategorie(): ?Categorie
+    {
+        return $this->categorie;
+    }
+
+    public function setCategorie(?Categorie $categorie): self
+    {
+        $this->categorie = $categorie;
+        return $this;
+    }
+
+    public function getMouvementsStock()
+    {
+        return $this->mouvementsStock;
+    }
+
+    public function ajouterStock(int $quantite, string $type = 'entrée', ?string $commentaire = null): self
+    {
+        if ($quantite < 0) {
+            throw new \InvalidArgumentException('La quantité doit être positive pour un ajout de stock.');
+        }
+
+        $this->stock += $quantite;
+
+        $mouvement = new MouvementStock();
+        $mouvement->setProduit($this)
+            ->setQuantite($quantite)
+            ->setType($type)
+            ->setCommentaire($commentaire)
+            ->setDate(new \DateTime());
+
+        $this->mouvementsStock->add($mouvement);
+
+        return $this;
+    }
+
+    public function retirerStock(int $quantite, string $type = 'sortie', ?string $commentaire = null): self
+    {
+        if ($quantite < 0) {
+            throw new \InvalidArgumentException('La quantité doit être positive pour un retrait de stock.');
+        }
+
+        if ($this->stock < $quantite) {
+            throw new \InvalidArgumentException('Stock insuffisant.');
+        }
+
+        $this->stock -= $quantite;
+
+        $mouvement = new MouvementStock();
+        $mouvement->setProduit($this)
+            ->setQuantite(-$quantite)
+            ->setType($type)
+            ->setCommentaire($commentaire)
+            ->setDate(new \DateTime());
+
+        $this->mouvementsStock->add($mouvement);
+
+        return $this;
+    }
+
+    public function estEnAlerte(): bool
+    {
+        return $this->stock <= $this->seuilAlerte;
+    }
 }

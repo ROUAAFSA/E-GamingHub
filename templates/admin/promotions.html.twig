@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Promotions{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Gestion des Promotions</h1>
+
+        <div class="row mt-4">
+            <!-- Section Codes Promo -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Codes Promo</h5>
+                        <a href="{{ path('admin_code_promo_new') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Nouveau code
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Réduction</th>
+                                        <th>État</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for code in codes_promo %}
+                                    <tr>
+                                        <td>{{ code.code }}</td>
+                                        <td>
+                                            {% if code.montantFixe %}
+                                                {{ code.montantFixe|number_format(2, ',', ' ') }} TND
+                                            {% elseif code.pourcentage %}
+                                                {{ code.pourcentage }}%
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge {% if code.actif %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ code.actif ? 'Actif' : 'Inactif' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('admin_code_promo_edit', {'id': code.id}) }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">Aucun code promo</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Promotions sur Produits -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Promotions sur Produits</h5>
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newPromoModal">
+                            <i class="fas fa-plus"></i> Nouvelle promotion
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th>Réduction</th>
+                                        <th>Période</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for promo in promotions_produits %}
+                                    <tr>
+                                        <td>{{ promo.produit.nom }}</td>
+                                        <td>{{ promo.pourcentage }}%</td>
+                                        <td>
+                                            Du {{ promo.dateDebut|date('d/m/Y') }}<br>
+                                            au {{ promo.dateFin|date('d/m/Y') }}
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editPromoModal{{ promo.id }}">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form method="post" action="{{ path('admin_promotion_delete', {'id': promo.id}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promo.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette promotion ?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">Aucune promotion active</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nouvelle Promotion -->
+    <div class="modal fade" id="newPromoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nouvelle Promotion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" action="{{ path('admin_promotion_new') }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="produit" class="form-label">Produit</label>
+                            <select class="form-select" id="produit" name="produit" required>
+                                <option value="">Sélectionner un produit</option>
+                                {% for produit in produits %}
+                                    <option value="{{ produit.id }}">{{ produit.nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pourcentage" class="form-label">Pourcentage de réduction</label>
+                            <input type="number" class="form-control" id="pourcentage" name="pourcentage" required min="1" max="99">
+                        </div>
+                        <div class="mb-3">
+                            <label for="dateDebut" class="form-label">Date de début</label>
+                            <input type="date" class="form-control" id="dateDebut" name="dateDebut" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dateFin" class="form-label">Date de fin</label>
+                            <input type="date" class="form-control" id="dateFin" name="dateFin" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Créer la promotion</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

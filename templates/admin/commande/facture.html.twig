@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Facture #{{ commande.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            margin: 0;
+        }
+        .info-section {
+            margin-bottom: 20px;
+        }
+        .info-section h2 {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        .total {
+            text-align: right;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FACTURE #{{ commande.id }}</h1>
+        <p>Date : {{ commande.date|date('d/m/Y') }}</p>
+    </div>
+
+    <div class="info-section">
+        <h2>Informations client</h2>
+        <p>
+            <strong>{{ commande.utilisateur.nom }}</strong><br>
+            {{ commande.utilisateur.email }}<br>
+            {{ commande.adresseLivraison }}
+        </p>
+    </div>
+
+    <div class="info-section">
+        <h2>Détails de la commande</h2>
+        <p>
+            <strong>Méthode de livraison :</strong> {{ commande.methodeLivraison }}<br>
+            <strong>Méthode de paiement :</strong> {{ commande.methodePaiement }}
+        </p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Prix unitaire</th>
+                <th>Quantité</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in commande.lignesCommande %}
+                <tr>
+                    <td>{{ ligne.produit.nom }}</td>
+                    <td>{{ ligne.prixUnitaire|number_format(2, ',', ' ') }} TND</td>
+                    <td>{{ ligne.quantite }}</td>
+                    <td>{{ ligne.total|number_format(2, ',', ' ') }} TND</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if commande.codePromo %}
+        <p class="total">Code promo appliqué : {{ commande.codePromo }}</p>
+    {% endif %}
+
+    <p class="total">Total : {{ commande.montant|number_format(2, ',', ' ') }} TND</p>
+
+    <div class="footer">
+        <p>
+            Merci de votre confiance !<br>
+            Pour toute question concernant votre commande, contactez notre service client.
+        </p>
+    </div>
+</body>
+</html> 
