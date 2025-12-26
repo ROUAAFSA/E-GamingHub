@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        {% block stylesheets %}
+
+    <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Css Styles -->
+   <link rel="stylesheet" href="{{ asset('frontOffice/css/bootstrap.min.css') }}" type="text/css">
+<link rel="stylesheet" href="{{ asset('frontOffice/css/font-awesome.min.css') }}" type="text/css">
+<link rel="stylesheet" href="{{ asset('frontOffice/css/elegant-icons.css') }}" type="text/css">
+<link rel="stylesheet" href="{{ asset('frontOffice/css/owl.carousel.min.css') }}" type="text/css">
+<link rel="stylesheet" href="{{ asset('frontOffice/css/magnific-popup.css') }}" type="text/css">
+<link rel="stylesheet" href="{{ asset('frontOffice/css/slicknav.min.css') }}" type="text/css">
+<link rel="stylesheet" href="{{ asset('frontOffice/css/style.css') }}" type="text/css">
+
+        {% endblock %}
+
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+
+               <script src="{{ asset('frontOffice/js/jquery-3.3.1.min.js') }}"></script>
+<script src="{{ asset('frontOffice/js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('frontOffice/js/jquery.magnific-popup.min.js') }}"></script>
+<script src="{{ asset('frontOffice/js/mixitup.min.js') }}"></script>
+<script src="{{ asset('frontOffice/js/masonry.pkgd.min.js') }}"></script>
+<script src="{{ asset('frontOffice/js/jquery.slicknav.js') }}"></script>
+<script src="{{ asset('frontOffice/js/owl.carousel.min.js') }}"></script>
+<script src="{{ asset('frontOffice/js/main.js') }}"></script>
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}
+    <!-- Header Section Begin -->
+    <header class="header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="header__logo">
+                        <a href="{{ path('app_home') }}">
+                            <img src="{{ asset('frontOffice/img/logo.png') }}" alt="">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-10">
+                    <div class="header__nav__option">
+                        <nav class="header__nav__menu mobile-menu">
+                            <ul>
+                                <li><a href="{{ path('app_home') }}">Accueil</a></li>
+                                <li><a href="#">Événements</a></li>
+                                <li><a href="{{ path('app_salle_index') }}">Salles</a></li>
+                                <li><a href="{{ path('app_reservation_salle_index') }}">Réservations</a></li>
+                                <li><a href="#">Contact</a></li>
+                                {% if app.user %}
+                                    <li><a href="#">Mon Compte</a></li>
+                                    <li><a href="{{ path('app_logout') }}">Déconnexion</a></li>
+                                {% else %}
+                                    <li><a href="{{ path('app_login') }}">Connexion</a></li>
+                                    <li><a href="{{ path('app_register') }}">Inscription</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div id="mobile-menu-wrap"></div>
+        </div>
+    </header>
+    <!-- Header Section End -->
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Footer Section Begin -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 col-sm-7">
+                    <div class="footer__about">
+                        <div class="footer__logo">
+                            <a href="{{ path('app_home') }}"><img src="{{ asset('frontOffice/img/logo.png') }}" alt=""></a>
+                        </div>
+                        <p>E-Sportify - Votre plateforme pour les événements e-sport</p>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-5">
+                    <div class="footer__widget">
+                        <h5>Liens Rapides</h5>
+                        <ul>
+                            <li><a href="{{ path('app_home') }}">Accueil</a></li>
+                            <li><a href="#">Événements</a></li>
+                            <li><a href="{{ path('app_salle_index') }}">Salles</a></li>
+                            <li><a href="{{ path('app_reservation_salle_index') }}">Réservations</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-8 col-sm-8">
+                    <div class="footer__newslatter">
+                        <h5>Inscrivez-vous à notre newsletter</h5>
+                        <form action="#">
+                            <input type="text" placeholder="Email">
+                            <button type="submit" class="site-btn">S'abonner</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <p>Copyright &copy; {{ 'now'|date('Y') }} E-Sportify. Tous droits réservés.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer Section End -->
+{% endblock %}
+    </body>
+</html>                   

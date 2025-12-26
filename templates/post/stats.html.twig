@@ -1,0 +1,744 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vlog Posts Statistics{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
+    <style>
+        /* Layout principal */
+        .main-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Styles pour la sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--light);
+            z-index: 2000;
+            font-family: var(--lato);
+            transition: .3s ease;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        .sidebar .brand {
+            font-size: 24px;
+            font-weight: 700;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+        }
+
+        .sidebar .brand img {
+            width: 180px;
+            height: auto;
+            margin-left: 10px;
+        }
+
+        .sidebar .side-menu {
+            width: 100%;
+            margin-top: 48px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar .side-menu li {
+            height: 48px;
+            background: transparent;
+            margin-left: 6px;
+            border-radius: 48px 0 0 48px;
+            padding: 4px;
+        }
+
+        .sidebar .side-menu li a {
+            width: 100%;
+            height: 100%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            border-radius: 48px;
+            font-size: 16px;
+            color: var(--dark);
+            white-space: nowrap;
+            overflow-x: hidden;
+            padding: 0 12px;
+            text-decoration: none;
+        }
+
+        .sidebar .side-menu li a.active {
+            color: var(--success);
+        }
+
+        .sidebar .side-menu li a:hover {
+            color: var(--success);
+        }
+
+        .sidebar .side-menu li a i {
+            min-width: calc(60px - ((4px + 6px) * 2));
+            display: flex;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .sidebar .side-menu li a.logout {
+            color: var(--danger);
+        }
+
+        /* Styles pour le contenu principal */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        /* Vos styles existants */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --secondary-light: #34d399;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --gray: #6b7280;
+            --light-gray: #e5e7eb;
+            --background: #f8fafc;
+            --white: #ffffff;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition-normal: all 0.3s ease;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--dark);
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .dashboard-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: var(--transition-normal);
+        }
+
+        .dashboard-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 400px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            background-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn i {
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="main-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="#" class="brand">
+            <img src="{{ asset('navbar/img/E-SPORTIFY.png') }}" alt="E-SPORTIFY">
+        </a>
+        <ul class="side-menu">
+            <li>
+                <a href="#" class="active">
+                    <i class='bx bxs-dashboard'></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-shopping-bag-alt'></i>
+                    <span>My Store</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-doughnut-chart'></i>
+                    <span>Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_admin_dashboard') }}">
+                    <i class='bx bxs-message-dots'></i>
+                    <span>Message</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_post_indexback')}}">
+                    <i class='bx bxs-group'></i>
+                    <span>Actualité</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-cog'></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_logout') }}" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="container">
+            <h1>Vlog Posts Statistics</h1>
+
+            <a href="{{ path('app_post_indexback') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Posts
+            </a>
+
+            <!-- Pie Chart: Posts by Category -->
+            <div class="dashboard-card">
+                <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Posts by Category</h2>
+                <div class="chart-container">
+                    <canvas id="postsByCategoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bar Chart: Comments per Post -->
+            <div class="dashboard-card">
+                <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Comments per Post (Top 10)</h2>
+                <div class="chart-container">
+                    <canvas id="commentsPerPostChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Line Chart: Posts Over Time -->
+            <div class="dashboard-card">
+                <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Posts Over Time</h2>
+                <div class="chart-container">
+                    <canvas id="postsOverTimeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Pie Chart: Signaled vs Non-Signaled Posts -->
+            <div class="dashboard-card">
+                <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Signaled vs Non-Signaled Posts</h2>
+                <div class="chart-container">
+                    <canvas id="signaledPostsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bar Chart: Most Liked Posts -->
+            <div class="dashboard-card">
+                <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Most Liked Posts (Top 10)</h2>
+                <div class="chart-container">
+                    <canvas id="mostLikedPostsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bar Chart: Most Disliked Posts -->
+            <div class="dashboard-card">
+                <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Most Disliked Posts (Top 10)</h2>
+                <div class="chart-container">
+                    <canvas id="mostDislikedPostsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Define color palette
+        const colors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+            '#FF9F40', '#C9CBCF', '#7BC225', '#FF6B6B', '#FFD700'
+        ];
+
+        // Pie Chart: Posts by Category
+        const postsByCategoryData = {
+            labels: [{% for item in postsByCategory %}'{{ item.category }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for item in postsByCategory %}{{ item.count }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: colors,
+                hoverOffset: 4
+            }]
+        };
+
+        new Chart(document.getElementById('postsByCategoryChart'), {
+            type: 'pie',
+            data: postsByCategoryData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribution of Posts by Category',
+                        font: {
+                            family: 'Poppins',
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                }
+            }
+        });
+
+        // Bar Chart: Comments per Post
+        const commentsPerPostData = {
+            labels: [{% for item in commentsPerPost %}'{{ item.postTitle|length > 20 ? item.postTitle|slice(0, 20) ~ '...' : item.postTitle }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Number of Comments',
+                data: [{% for item in commentsPerPost %}{{ item.commentCount }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: '#36A2EB',
+                borderColor: '#1d4ed8',
+                borderWidth: 1
+            }]
+        };
+
+        new Chart(document.getElementById('commentsPerPostChart'), {
+            type: 'bar',
+            data: commentsPerPostData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Comments',
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            font: {
+                                family: 'Poppins'
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Post Title',
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Poppins'
+                            },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Comments per Post (Top 10)',
+                        font: {
+                            family: 'Poppins',
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                }
+            }
+        });
+
+        // Line Chart: Posts Over Time
+        const postsOverTimeData = {
+            labels: [{% for item in postsOverTime %}'{{ item.month }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Number of Posts',
+                data: [{% for item in postsOverTime %}{{ item.count }}{% if not loop.last %},{% endif %}{% endfor %}],
+                fill: false,
+                borderColor: '#FF6384',
+                tension: 0.1,
+                pointBackgroundColor: '#FF6384',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#FF6384'
+            }]
+        };
+
+        new Chart(document.getElementById('postsOverTimeChart'), {
+            type: 'line',
+            data: postsOverTimeData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Posts',
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            font: {
+                                family: 'Poppins'
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month',
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Poppins'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Posts Created Over Time',
+                        font: {
+                            family: 'Poppins',
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                }
+            }
+        });
+
+        // Pie Chart: Signaled vs Non-Signaled Posts
+        const signaledPostsData = {
+            labels: [{% for item in signaledPostsCount %}'{{ item.signaled ? "Signaled" : "Non-Signaled" }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for item in signaledPostsCount %}{{ item.count }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: ['#FF6384', '#36A2EB'],
+                hoverOffset: 4
+            }]
+        };
+
+        new Chart(document.getElementById('signaledPostsChart'), {
+            type: 'pie',
+            data: signaledPostsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Signaled vs Non-Signaled Posts',
+                        font: {
+                            family: 'Poppins',
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                }
+            }
+        });
+
+        // Bar Chart: Most Liked Posts
+        const mostLikedPostsData = {
+            labels: [{% for item in mostLikedPosts %}'{{ item.postTitle|length > 20 ? item.postTitle|slice(0, 20) ~ '...' : item.postTitle }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Number of Likes',
+                data: [{% for item in mostLikedPosts %}{{ item.likeCount }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: '#10b981',
+                borderColor: '#059669',
+                borderWidth: 1
+            }]
+        };
+
+        new Chart(document.getElementById('mostLikedPostsChart'), {
+            type: 'bar',
+            data: mostLikedPostsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Likes',
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            font: {
+                                family: 'Poppins'
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Post Title',
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Poppins'
+                            },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Most Liked Posts (Top 10)',
+                        font: {
+                            family: 'Poppins',
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                }
+            }
+        });
+
+        // Bar Chart: Most Disliked Posts
+        const mostDislikedPostsData = {
+            labels: [{% for item in mostDislikedPosts %}'{{ item.postTitle|length > 20 ? item.postTitle|slice(0, 20) ~ '...' : item.postTitle }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Number of Dislikes',
+                data: [{% for item in mostDislikedPosts %}{{ item.dislikeCount }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: '#ef4444',
+                borderColor: '#dc2626',
+                borderWidth: 1
+            }]
+        };
+
+        new Chart(document.getElementById('mostDislikedPostsChart'), {
+            type: 'bar',
+            data: mostDislikedPostsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Dislikes',
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            font: {
+                                family: 'Poppins'
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Post Title',
+                            font: {
+                                family: 'Poppins',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Poppins'
+                            },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Most Disliked Posts (Top 10)',
+                        font: {
+                            family: 'Poppins',
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

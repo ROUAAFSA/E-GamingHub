@@ -1,0 +1,94 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'post-form-container'}}) }}
+
+    {# Display global form errors #}
+    {% if form_errors(form) %}
+        <div class="error">
+            {{ form_errors(form) }}
+        </div>
+    {% endif %}
+
+    {# Titre Field #}
+<div class="field">
+    {{ form_label(form.titre) }}
+    {{ form_widget(form.titre) }}
+    {% if form_errors(form.titre) %}
+        <div class="error">{{ form_errors(form.titre) }}</div>
+    {% endif %}
+</div>
+
+{# Description Field #}
+<div class="field">
+    {{ form_label(form.description) }}
+    {{ form_widget(form.description) }}
+    {% if form_errors(form.description) %}
+        <div class="error">{{ form_errors(form.description) }}</div>
+    {% endif %}
+</div>
+
+{# ImageName Field #}
+<div class="field">
+    {{ form_label(form.imageName) }}
+    {{ form_widget(form.imageName) }}
+    {% if form_errors(form.imageName) %}
+        <div class="error">{{ form_errors(form.imageName) }}</div>
+    {% endif %}
+</div>
+
+{# Categorie Field #}
+<div class="field">
+    {{ form_label(form.categorie) }}
+    {{ form_widget(form.categorie) }}
+    {% if form_errors(form.categorie) %}
+        <div class="error">{{ form_errors(form.categorie) }}</div>
+    {% endif %}
+</div>
+
+{# UpdatedAt Field #}
+<div class="field">
+    {{ form_label(form.updatedAt) }}
+    {{ form_widget(form.updatedAt) }}
+    {% if form_errors(form.updatedAt) %}
+        <div class="error">{{ form_errors(form.updatedAt) }}</div>
+    {% endif %}
+</div>
+
+{# LikeCount Field #}
+<div class="field">
+    {{ form_label(form.likeCount) }}
+    {{ form_widget(form.likeCount) }}
+    {% if form_errors(form.likeCount) %}
+        <div class="error">{{ form_errors(form.likeCount) }}</div>
+    {% endif %}
+</div>
+
+{# Signaled Field #}
+<div class="field">
+    {{ form_label(form.signaled) }}
+    {{ form_widget(form.signaled) }}
+    {% if form_errors(form.signaled) %}
+        <div class="error">{{ form_errors(form.signaled) }}</div>
+    {% endif %}
+</div>
+
+{# DislikeCount Field #}
+<div class="field">
+    {{ form_label(form.dislikeCount) }}
+    {{ form_widget(form.dislikeCount) }}
+    {% if form_errors(form.dislikeCount) %}
+        <div class="error">{{ form_errors(form.dislikeCount) }}</div>
+    {% endif %}
+</div>
+
+{# Enable Field #}
+<div class="field">
+    {{ form_label(form.enable) }}
+    {{ form_widget(form.enable) }}
+    {% if form_errors(form.enable) %}
+        <div class="error">{{ form_errors(form.enable) }}</div>
+    {% endif %}
+</div>
+
+{# Submit Button #}
+<button type="submit">{{ button_label|default('Save') }}</button>
+
+{{ form_end(form) }}

@@ -1,0 +1,173 @@
+{% extends 'basee.html.twig' %}
+
+{% block title %}Post Details{% endblock %}
+
+{% block body %}
+{% include 'Navbar/navbar_login.html.twig' %}
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background-color: #1e1e2f;
+            border: 2px solid white;
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #b388ff;
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            color: #b388ff;
+            width: 30%;
+            font-weight: 600;
+        }
+
+        td {
+            color: #eeeeee;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-edit {
+            background-color: #81c784;
+            color: #fff;
+        }
+
+        .btn-edit:hover {
+            background-color: #66bb6a;
+        }
+
+        .btn-delete {
+            background-color: #e57373;
+            color: #fff;
+        }
+
+        .btn-delete:hover {
+            background-color: #ef5350;
+        }
+    </style>
+
+    <div class="container">
+        <h1>📄 Post Details</h1>
+
+        <table>
+            <tbody>
+            <tr>
+                <th>ID</th>
+                <td>{{ post.id }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ post.titre }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ post.description }}</td>
+            </tr>
+            <tr>
+                <th>Image</th>
+                <td>
+                    {% if post.imageName %}
+                        <img src="{{ asset('uploads/images/' ~ post.imageName) }}" alt="Post Image" style="max-width: 100%; height: auto; border-radius: 8px;">
+                    {% else %}
+                        Aucune image disponible.
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Catégorie</th>
+                <td>{{ post.categorie }}</td>
+            </tr>
+            <tr>
+                <th>Mis à jour le</th>
+                <td>{{ post.updatedAt ? post.updatedAt|date('d/m/Y H:i') : 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>👍 Likes</th>
+                <td>{{ post.likeCount }}</td>
+            </tr>
+            <tr>
+                <th>👎 Dislikes</th>
+                <td>{{ post.dislikeCount }}</td>
+            </tr>
+            <tr>
+                <th>Statut</th>
+                <td>{{ post.enable ? '✅ Actif' : '❌ Inactif' }}</td>
+            </tr>
+            <tr>
+                <th>Signalé</th>
+                <td>{{ post.signaled ? '⚠️ Oui' : 'Non' }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="btn-group">
+            <a href="{{ path('app_post_index') }}" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            <a href="{{ path('app_post_edit', {'id': post.id}) }}" class="btn btn-edit">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <form method="post" action="{{ path('app_post_delete', {'id': post.id}) }}" style="display:inline;">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
+                <button class="btn btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce post ?');">
+                    <i class="fas fa-trash-alt"></i> Supprimer
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

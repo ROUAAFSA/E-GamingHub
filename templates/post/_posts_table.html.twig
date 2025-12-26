@@ -1,0 +1,46 @@
+{% if posts|length > 0 %}
+    {% for post in posts %}
+        <tr>
+            <td>
+                <a href="{{ path('app_post_show', {'id': post.id}) }}" style="color: #333; text-decoration: none;">
+                    {{ post.titre|length > 30 ? post.titre|slice(0, 30) ~ '...' : post.titre }}
+                </a>
+            </td>
+            <td><span class="category">{{ post.categorie }}</span></td>
+            <td class="description">{{ post.description }}</td>
+            <td>
+                {% if post.imageName %}
+                    <img src="{{ asset('Uploads/images/' ~ post.imageName) }}" alt="{{ post.titre }}">
+                {% else %}
+                    <span class="no-image">No Image</span>
+                {% endif %}
+            </td>
+            <td>{{ post.updatedAt ? post.updatedAt|date('M d, Y') : 'N/A' }}</td>
+            <td>
+                <div class="likes-dislikes" data-post-id="{{ post.id }}">
+                    <button class="like-btn {% if session.liked_posts is defined and post.id in session.liked_posts %}liked{% endif %}" data-csrf-token="{{ csrf_token('like' ~ post.id) }}">
+                        <i class="fas fa-thumbs-up"></i> <span class="like-count">{{ post.likeCount }}</span>
+                    </button>
+                </div>
+            </td>
+            <td>
+                <div class="likes-dislikes" data-post-id="{{ post.id }}">
+                    <button class="dislike-btn {% if session.disliked_posts is defined and post.id in session.disliked_posts %}disliked{% endif %}" data-csrf-token="{{ csrf_token('dislike' ~ post.id) }}">
+                        <i class="fas fa-thumbs-down"></i> <span class="dislike-count">{{ post.dislikeCount }}</span>
+                    </button>
+                </div>
+            </td>
+            <td><span class="status">{{ post.enable ? 'Active' : 'Inactive' }}</span></td>
+            <td>{% if post.signaled %}<span class="signaled">⚠️ Signaled</span>{% endif %}</td>
+            <td class="actions">
+                <a href="{{ path('app_post_edit', {'id': post.id}) }}">Edit</a>
+            </td>
+        </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td colspan="10" class="no-posts">
+            <p>No posts found. Be the first to share something!</p>
+        </td>
+    </tr>
+{% endif %}

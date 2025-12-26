@@ -1,0 +1,962 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Posts{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
+    <style>
+        /* Layout principal */
+        .main-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Styles pour la sidebar */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--light);
+            z-index: 2000;
+            font-family: var(--lato);
+            transition: .3s ease;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        #sidebar .brand {
+            font-size: 24px;
+            font-weight: 700;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+        }
+
+        #sidebar .brand img {
+            width: 180px;
+            height: auto;
+            margin-left: 10px;
+        }
+
+        #sidebar .side-menu {
+            width: 100%;
+            margin-top: 48px;
+        }
+
+        #sidebar .side-menu li {
+            height: 48px;
+            background: transparent;
+            margin-left: 6px;
+            border-radius: 48px 0 0 48px;
+            padding: 4px;
+        }
+
+        #sidebar .side-menu li.active {
+            background: var(--grey);
+            position: relative;
+        }
+
+        #sidebar .side-menu li.active::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            top: -40px;
+            right: 0;
+            box-shadow: 20px 20px 0 var(--grey);
+            z-index: -1;
+        }
+
+        #sidebar .side-menu li.active::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            bottom: -40px;
+            right: 0;
+            box-shadow: 20px -20px 0 var(--grey);
+            z-index: -1;
+        }
+
+        #sidebar .side-menu li a {
+            width: 100%;
+            height: 100%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            border-radius: 48px;
+            font-size: 16px;
+            color: var(--dark);
+            white-space: nowrap;
+            overflow-x: hidden;
+            padding: 0 12px;
+        }
+
+        #sidebar .side-menu li.active a {
+            color: var(--success);
+        }
+
+        #sidebar .side-menu.top li a:hover {
+            color: var(--success);
+        }
+
+        #sidebar .side-menu li a .bx {
+            min-width: calc(60px - ((4px + 6px) * 2));
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Styles pour le contenu principal */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        .dashboard-header {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            color: #2193b0;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .stats-btn {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: #fff;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .stats-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(33,147,176,0.2);
+        }
+
+        .filter-section {
+            background: #fff;
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e1e1e1;
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #2193b0;
+            box-shadow: 0 0 0 3px rgba(33,147,176,0.1);
+            outline: none;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-input {
+            flex: 1;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sort-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 25px;
+            background: #fff;
+            color: #2193b0;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(33,147,176,0.1);
+        }
+
+        .sort-btn.active {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: #fff;
+        }
+
+        .sort-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33,147,176,0.15);
+        }
+
+        .posts-table {
+            background: #fff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+        }
+
+        .posts-table th {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: #fff;
+            font-weight: 500;
+            padding: 1rem;
+        }
+
+        .posts-table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .posts-table tr:hover {
+            background: rgba(33,147,176,0.05);
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+        }
+
+        .delete-btn {
+            background: linear-gradient(90deg, #e63946 0%, #ff758f 100%);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .pagination a {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            background: #fff;
+            color: #2193b0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(33,147,176,0.1);
+        }
+
+        .pagination a:hover {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .pagination .current {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: #fff;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        #content {
+            position: relative;
+            width: calc(100% - 280px);
+            left: 280px;
+            transition: .3s ease;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="main-layout">
+    <!-- SIDEBAR -->
+	<section id="sidebar">
+		<a href="#" class="brand">
+            <img src="{{ asset('navbar/img/E-SPORTIFY.png') }}" alt="E-SPORTIFY">
+		</a>
+		<ul class="side-menu top">
+			<li class="active">
+				<a href="#">
+                    <i class='bx bxs-dashboard'></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+			<li>
+				<a href="#">
+                    <i class='bx bxs-shopping-bag-alt'></i>
+					<span class="text">My Store</span>
+				</a>
+			</li>
+			<li>
+				<a href="#">
+                    <i class='bx bxs-doughnut-chart'></i>
+					<span class="text">Analytics</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ path('app_admin_dashboard') }}">
+                    <i class='bx bxs-message-dots'></i>
+					<span class="text">Message</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ path('app_post_indexback')}}">
+                    <i class='bx bxs-group'></i>
+                    <span class="text">Actualité</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ path('app_salle_index') }}">
+                    <i class='bx bxs-door-open'></i>
+					<span class="text">Gestion des Salles</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ path('app_reservation_salle_index') }}">
+                    <i class='bx bxs-calendar'></i>
+					<span class="text">Réservations Salles</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="side-menu">
+			<li>
+				<a href="#">
+                    <i class='bx bxs-cog'></i>
+					<span class="text">Settings</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ path('app_logout') }}" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Gestion des Posts</h1>
+            <a href="{{ path('app_post_stats') }}" class="stats-btn">
+                <i class="fas fa-chart-line"></i> Voir les statistiques
+            </a>
+        </div>
+
+        <div class="filter-section">
+            <form id="filterForm" method="GET" action="{{ path('app_post_search') }}">
+                <div class="filter-row">
+                    <div class="filter-input">
+                        <input type="text" id="search-title" name="search" class="search-input" placeholder="Rechercher par titre..." value="">
+                    </div>
+                    <div class="filter-input">
+                        <select id="filter-category" name="category" class="search-input">
+                            <option value="">Toutes les catégories</option>
+                            {% for category in categories %}
+                                <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="filter-input">
+                        <select id="filter-status" name="status" class="search-input">
+                            <option value="">Statut: Tous</option>
+                            <option value="true">Actif</option>
+                            <option value="false">Inactif</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="sort-buttons">
+            <button class="sort-btn active" data-sort-by="updatedAt" data-sort-order="DESC">
+                <i class="fas fa-calendar-alt"></i> Mis à jour
+            </button>
+            <button class="sort-btn" data-sort-by="likeCount" data-sort-order="DESC">
+                <i class="fas fa-thumbs-up"></i> Likes
+            </button>
+            <button class="sort-btn" data-sort-by="dislikeCount" data-sort-order="DESC">
+                <i class="fas fa-thumbs-down"></i> Dislikes
+            </button>
+        </div>
+
+        <div class="posts-table">
+            <table id="posts-table" class="table">
+                <thead>
+                <tr>
+                        <th>Titre</th>
+                        <th>Catégorie</th>
+                    <th>Description</th>
+                    <th>Image</th>
+                        <th>Mis à jour</th>
+                    <th>Likes</th>
+                    <th>Dislikes</th>
+                        <th>Statut</th>
+                        <th>Signalé</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% include 'post/_posts_table.html.twig' %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            {{ knp_pagination_render(posts) }}
+        </div>
+    </main>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterForm = document.getElementById('filterForm');
+            const searchTitle = document.getElementById('search-title');
+            const filterCategory = document.getElementById('filter-category');
+            const filterStatus = document.getElementById('filter-status');
+            const clearSearch = document.getElementById('clearSearch');
+            const sortButtons = document.querySelectorAll('.sort-btn');
+            const tableBody = document.querySelector('#posts-table tbody');
+            const tableContainer = document.querySelector('.table-container');
+            const loadingIndicator = document.querySelector('.search-loading');
+
+            let currentSortBy = 'updatedAt';
+            let currentSortOrder = 'DESC';
+            let searchTimeout = null;
+            let lastSearchQuery = '';
+            const debounceDelay = 300;
+            const minQueryLength = 1;
+
+            // Update clear button visibility
+            function updateClearButtons() {
+                clearSearch.style.display = searchTitle.value ? 'block' : 'none';
+            }
+
+            // Enhanced search with loading animation
+            function performSearch() {
+                const search = searchTitle.value.trim();
+                const category = filterCategory.value;
+                const status = filterStatus.value;
+
+                // Cache the search to avoid unnecessary API calls
+                const currentQuery = `${search}-${category}-${status}-${currentSortBy}-${currentSortOrder}`;
+                if (currentQuery === lastSearchQuery) return;
+                lastSearchQuery = currentQuery;
+
+                // Allow search even with minimal input
+                if (search.length < minQueryLength && !category && !status) {
+                    resetToInitialState();
+                    return;
+                }
+
+                // Show loading animation
+                loadingIndicator.classList.add('active');
+                tableBody.style.opacity = '0.7';
+                tableBody.style.transition = 'opacity 0.3s';
+
+                const params = new URLSearchParams();
+                if (search) params.append('search', search);
+                if (category) params.append('category', category);
+                if (status) params.append('status', status);
+                params.append('sortBy', currentSortBy);
+                params.append('sortOrder', currentSortOrder);
+
+                fetch(`{{ path('app_post_search') }}?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                        return response.text();
+                    })
+                    .then(html => {
+                        // Animate the table update
+                        fadeOut(tableBody, () => {
+                            tableBody.innerHTML = html;
+                            fadeIn(tableBody);
+                            tableContainer.style.display = html.includes('no-posts') ? 'block' : 'block';
+                            loadingIndicator.classList.remove('active');
+                            attachEventListeners();
+                            announceSearchResults();
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                        showErrorMessage();
+                        loadingIndicator.classList.remove('active');
+                    });
+            }
+
+            // Fade out animation
+            function fadeOut(element, callback) {
+                element.style.opacity = '0';
+                setTimeout(() => {
+                    if (callback) callback();
+                }, 200);
+            }
+
+            // Fade in animation
+            function fadeIn(element) {
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                }, 50);
+            }
+
+            // Reset to initial state with animation
+            function resetToInitialState() {
+                loadingIndicator.classList.add('active');
+                fadeOut(tableBody, () => {
+                    fetch('{{ path('app_post_search') }}', {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'text/html'
+                        }
+                    })
+                        .then(response => {
+                            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                            return response.text();
+                        })
+                        .then(html => {
+                            tableBody.innerHTML = html;
+                            fadeIn(tableBody);
+                            tableContainer.style.display = 'block';
+                            loadingIndicator.classList.remove('active');
+                            attachEventListeners();
+                            announceSearchResults();
+                        })
+                        .catch(error => {
+                            console.error('Reset error:', error);
+                            showErrorMessage();
+                            loadingIndicator.classList.remove('active');
+                        });
+                });
+            }
+
+            // Show error message with animation
+            function showErrorMessage() {
+                fadeOut(tableBody, () => {
+                    tableBody.innerHTML = `
+                <tr>
+                    <td colspan="10" class="no-posts">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Error loading posts. Please try again.</p>
+                        <button class="sort-btn" onclick="location.reload()">Retry</button>
+                    </td>
+                </tr>`;
+                    fadeIn(tableBody);
+                    tableContainer.style.display = 'block';
+                });
+            }
+
+            // Announce search results for accessibility
+            function announceSearchResults() {
+                const rows = document.querySelectorAll('#posts-table tbody tr');
+                const announcement = `Search completed. ${rows.length} posts found.`;
+                const liveRegion = document.createElement('div');
+                liveRegion.setAttribute('aria-live', 'polite');
+                liveRegion.setAttribute('class', 'sr-only');
+                liveRegion.textContent = announcement;
+                document.body.appendChild(liveRegion);
+                setTimeout(() => liveRegion.remove(), 1000);
+            }
+
+            // Attach all event listeners
+            function attachEventListeners() {
+                attachLikeDislikeListeners();
+                attachDescriptionExpandListeners();
+            }
+
+            // Toggle description expansion
+            function attachDescriptionExpandListeners() {
+                const descriptions = document.querySelectorAll('.description');
+                descriptions.forEach(desc => {
+                    desc.addEventListener('click', () => {
+                        desc.classList.toggle('expanded');
+                    });
+                });
+            }
+
+            // Attach like/dislike listeners with animations
+            function attachLikeDislikeListeners() {
+                const likeButtons = document.querySelectorAll('.like-btn');
+                const dislikeButtons = document.querySelectorAll('.dislike-btn');
+
+                const sendRequest = async (url, csrfToken) => {
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: `_token=${encodeURIComponent(csrfToken)}`,
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+
+                        return response.json();
+                    } catch (error) {
+                        console.error('Request error:', error);
+                        throw error;
+                    }
+                };
+
+                likeButtons.forEach(button => {
+                    button.addEventListener('click', async () => {
+                        // Add click animation
+                        button.classList.add('clicked');
+                        setTimeout(() => button.classList.remove('clicked'), 300);
+
+                        const postId = button.closest('.likes-dislikes').dataset.postId;
+                        const csrfToken = button.dataset.csrfToken;
+                        const url = `{{ path('app_post_like', {'id': 'POST_ID'}) }}`.replace('POST_ID', postId);
+
+                        try {
+                            const data = await sendRequest(url, csrfToken);
+                            if (data.error) {
+                                showToast(data.error, 'error');
+                                return;
+                            }
+
+                            const likesDislikesDiv = button.closest('.likes-dislikes');
+
+                            // Animate counter change
+                            animateCounterChange(likesDislikesDiv.querySelector('.like-count'), data.likeCount);
+                            const row = button.closest('tr');
+                            animateCounterChange(row.querySelector('.dislike-count'), data.dislikeCount);
+
+                            // Toggle button states with animation
+                            toggleButtonState(button, 'liked', data.hasLiked);
+                            toggleButtonState(row.querySelector('.dislike-btn'), 'disliked', data.hasDisliked);
+
+                            showToast('Like updated!', 'success');
+                        } catch (error) {
+                            console.error('Like error:', error);
+                            showToast('An error occurred while processing your request.', 'error');
+                        }
+                    });
+                });
+
+                dislikeButtons.forEach(button => {
+                    button.addEventListener('click', async () => {
+                        // Add click animation
+                        button.classList.add('clicked');
+                        setTimeout(() => button.classList.remove('clicked'), 300);
+
+                        const postId = button.closest('.likes-dislikes').dataset.postId;
+                        const csrfToken = button.dataset.csrfToken;
+                        const url = `{{ path('app_post_dislike', {'id': 'POST_ID'}) }}`.replace('POST_ID', postId);
+
+                        try {
+                            const data = await sendRequest(url, csrfToken);
+                            if (data.error) {
+                                showToast(data.error, 'error');
+                                return;
+                            }
+
+                            const likesDislikesDiv = button.closest('.likes-dislikes');
+
+                            // Animate counter change
+                            animateCounterChange(likesDislikesDiv.querySelector('.dislike-count'), data.dislikeCount);
+                            const row = button.closest('tr');
+                            animateCounterChange(row.querySelector('.like-count'), data.likeCount);
+
+                            // Toggle button states with animation
+                            toggleButtonState(button, 'disliked', data.hasDisliked);
+                            toggleButtonState(row.querySelector('.like-btn'), 'liked', data.hasLiked);
+
+                            showToast('Dislike updated!', 'success');
+                        } catch (error) {
+                            console.error('Dislike error:', error);
+                            showToast('An error occurred while processing your request.', 'error');
+                        }
+                    });
+                });
+            }
+
+            // Animate counter change
+            function animateCounterChange(element, newValue) {
+                element.style.transition = 'transform 0.3s, opacity 0.3s';
+                element.style.transform = 'translateY(-5px)';
+                element.style.opacity = '0';
+
+                setTimeout(() => {
+                    element.textContent = newValue;
+                    element.style.transform = 'translateY(0)';
+                    element.style.opacity = '1';
+                }, 300);
+            }
+
+            // Toggle button state with animation
+            function toggleButtonState(button, className, state) {
+                if (state && !button.classList.contains(className)) {
+                    button.classList.add(className);
+                    button.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        button.style.transform = 'scale(1)';
+                    }, 200);
+                } else if (!state && button.classList.contains(className)) {
+                    button.classList.remove(className);
+                    button.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        button.style.transform = 'scale(1)';
+                    }, 200);
+                }
+            }
+
+            // Toast notification system
+            function showToast(message, type = 'info') {
+                // Create toast container if it doesn't exist
+                let toastContainer = document.querySelector('.toast-container');
+                if (!toastContainer) {
+                    toastContainer = document.createElement('div');
+                    toastContainer.className = 'toast-container';
+                    document.body.appendChild(toastContainer);
+
+                    // Add toast container styles
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        .toast-container {
+                            position: fixed;
+                            bottom: 20px;
+                            right: 20px;
+                            z-index: 1000;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 10px;
+                        }
+                        .toast {
+                            padding: 12px 20px;
+                            border-radius: 6px;
+                            color: white;
+                            font-size: 14px;
+                            font-weight: 500;
+                            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            transform: translateX(100%);
+                            animation: slideIn 0.3s forwards, fadeOut 0.3s 2.5s forwards;
+                            max-width: 300px;
+                        }
+                        .toast i {
+                            font-size: 16px;
+                        }
+                        .toast.success {
+                            background-color: var(--secondary);
+                        }
+                        .toast.error {
+                            background-color: var(--danger);
+                        }
+                        .toast.info {
+                            background-color: var(--primary);
+                        }
+                        @keyframes slideIn {
+                            to { transform: translateX(0); }
+                        }
+                        @keyframes fadeOut {
+                            to { opacity: 0; visibility: hidden; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+
+                // Create toast
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+
+                // Add icon based on type
+                let icon = '';
+                switch(type) {
+                    case 'success':
+                        icon = '<i class="fas fa-check-circle"></i>';
+                        break;
+                    case 'error':
+                        icon = '<i class="fas fa-exclamation-circle"></i>';
+                        break;
+                    default:
+                        icon = '<i class="fas fa-info-circle"></i>';
+                }
+
+                toast.innerHTML = `${icon} ${message}`;
+                toastContainer.appendChild(toast);
+
+                // Remove toast after animation completes
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+
+            // Input event listeners with debounce
+            [searchTitle, filterCategory, filterStatus].forEach(input => {
+                input.addEventListener('input', () => {
+                    updateClearButtons();
+                    clearTimeout(searchTimeout);
+
+                    // Show loading indicator immediately for better UX
+                    if (input === searchTitle) {
+                        loadingIndicator.classList.add('active');
+                    }
+
+                    searchTimeout = setTimeout(performSearch, debounceDelay);
+                });
+
+                // Add animation on focus
+                input.addEventListener('focus', () => {
+                    input.style.transform = 'translateY(-2px)';
+                    input.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                });
+
+                input.addEventListener('blur', () => {
+                    input.style.transform = 'translateY(0)';
+                    input.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
+                });
+            });
+
+            // Clear search button with animation
+            clearSearch.addEventListener('click', () => {
+                searchTitle.value = '';
+                updateClearButtons();
+
+                // Add button click animation
+                clearSearch.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    clearSearch.style.transform = 'scale(1)';
+                }, 200);
+
+                searchTitle.focus();
+                performSearch();
+            });
+
+            // Sort buttons with enhanced animation
+            sortButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const sortBy = button.dataset.sortBy;
+                    let sortOrder = button.dataset.sortOrder;
+
+                    // Add click animation
+                    button.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        button.style.transform = 'translateY(-2px)';
+                    }, 200);
+
+                    if (currentSortBy === sortBy) {
+                        sortOrder = sortOrder === 'ASC' ? 'DESC' : 'ASC';
+                        button.dataset.sortOrder = sortOrder;
+                    } else {
+                        sortButtons.forEach(btn => {
+                            btn.classList.remove('active');
+                            btn.style.transform = 'scale(1)';
+                        });
+                        button.classList.add('active');
+                    }
+
+                    currentSortBy = sortBy;
+                    currentSortOrder = sortOrder;
+
+                    // Update icon in sort button
+                    const iconElement = button.querySelector('i:last-child');
+                    iconElement.className = sortOrder === 'ASC' ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+
+                    // Animate icon change
+                    iconElement.style.transition = 'transform 0.3s';
+                    iconElement.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        iconElement.style.transform = 'scale(1)';
+                    }, 300);
+
+                    performSearch();
+                });
+            });
+
+            // Initial setup
+            updateClearButtons();
+            attachEventListeners();
+
+            // Add image loading animation
+            document.querySelectorAll('td img').forEach(img => {
+                img.style.opacity = '0';
+                img.onload = function() {
+                    this.style.transition = 'opacity 0.5s ease';
+                    this.style.opacity = '1';
+                };
+            });
+
+            // Add table row entrance animation
+            document.querySelectorAll('tbody tr').forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(10px)';
+                row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, 50 * index); // Staggered animation
+            });
+        });
+    </script>
+{% endblock %}

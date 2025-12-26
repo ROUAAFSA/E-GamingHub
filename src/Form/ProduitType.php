@@ -2,19 +2,18 @@
 namespace App\Form;
 
 use App\Entity\Produit;
+use App\Entity\Categorie;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
-
-
-// the product form
 class ProduitType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -31,19 +30,15 @@ class ProduitType extends AbstractType
                 'currency' => 'EUR',
                 'attr' => ['placeholder' => 'Prix', 'min' => 0, 'step' => '0.01', 'type' => 'number']
             ])
-
-            ->add('quantite', IntegerType::class, [
-                'label'       => 'Quantité',
-                'required'    => true,
-                'attr'        => ['min' => 0, 'placeholder' => 'Quantité en stock'],
-                'constraints' => [
-                    new PositiveOrZero([
-                        'message' => 'La quantité doit être un nombre positif ou zéro.'
-                    ])
-                ]
+            ->add('stock', NumberType::class, [
+                'attr' => ['placeholder' => 'Quantité en stock', 'min' => 0, 'step' => 1, 'type' => 'number']
             ])
-
-            // takes image
+            ->add('categorie', EntityType::class, [
+                'class' => Categorie::class,
+                'choice_label' => 'nom',
+                'placeholder' => 'Sélectionnez une catégorie',
+                'required' => true,
+            ])
             ->add('image', FileType::class, [
                 'label' => 'Image du produit',
                 'mapped' => false,
@@ -75,4 +70,4 @@ class ProduitType extends AbstractType
             'is_edit' => false
         ]);
     }
-}
+} 

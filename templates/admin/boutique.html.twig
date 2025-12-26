@@ -1,15 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Boutique - E-SPORTIFY{% endblock %}
-
 {% block stylesheets %}
-    <!-- Boxicons -->
-    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-    <!-- Font Awesome -->
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Poppins Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Dashboard CSS -->
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
 {% endblock %}
 
@@ -17,9 +12,8 @@
     <!-- SIDEBAR -->
     <section id="sidebar">
         <a href="#" class="brand">
-            <img src="{{ asset('navbar/img/E-SPORTIFY.png') }}" alt="E-SPORTIFY">
+            <img src="{{ asset('navbar/img/E-SPORTIFY.png') }}" alt="E-SPORTIFY" style="width: 180px; height: auto; margin-left: 10px;">
         </a>
-
         <ul class="side-menu top">
             <li>
                 <a href="{{ path('app_dashboard_admin') }}">
@@ -28,9 +22,9 @@
                 </a>
             </li>
             <li class="active">
-                <a href="{{ path('app_admin_boutique') }}">
+                <a href="{{ path('admin_boutique') }}">
                     <i class='bx bxs-shopping-bag-alt'></i>
-                    <span class="text">Boutique</span>
+                    <span class="text">Mon Boutique</span>
                 </a>
             </li>
             <li>
@@ -40,13 +34,18 @@
                 </a>
             </li>
             <li>
-                <a href="#">
+                <a href="{{ path('app_admin_dashboard') }}">
                     <i class='bx bxs-message-dots'></i>
-                    <span class="text">Messages</span>
+                    <span class="text">Message</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-group'></i>
+                    <span class="text">Team</span>
                 </a>
             </li>
         </ul>
-
         <ul class="side-menu">
             <li>
                 <a href="#">
@@ -62,438 +61,444 @@
             </li>
         </ul>
     </section>
+    <!-- SIDEBAR -->
 
     <!-- CONTENT -->
     <section id="content">
         <main>
-            <div class="head-title">
-                <div class="left">
-                    <h1>Boutique</h1>
-                    <ul class="breadcrumb">
-                        <li><a href="{{ path('app_dashboard_admin') }}">Dashboard</a></li>
-                        <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a class="active" href="#">Boutique</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Tabs Navigation -->
-            <div class="boutique-tabs">
-                <a href="{{ path('app_admin_boutique', {'section': 'dashboard'}) }}" class="tab-link {% if section == 'dashboard' %}active{% endif %}">
-                    <i class='bx bxs-dashboard'></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ path('app_admin_boutique', {'section': 'produits'}) }}" class="tab-link {% if section == 'produits' %}active{% endif %}">
-                    <i class='bx bxs-package'></i>
-                    <span>Produits</span>
-                </a>
-                <a href="{{ path('app_admin_boutique', {'section': 'commandes'}) }}" class="tab-link {% if section == 'commandes' %}active{% endif %}">
-                    <i class='bx bxs-cart'></i>
-                    <span>Commandes</span>
-                </a>
-                <a href="{{ path('app_admin_boutique', {'section': 'promotions'}) }}" class="tab-link {% if section == 'promotions' %}active{% endif %}">
-                    <i class='bx bxs-offer'></i>
-                    <span>Promotions</span>
-                </a>
-            </div>
-
-            <!-- Content Sections -->
-            {% if section == 'dashboard' %}
-                <!-- Dashboard Stats -->
-                <ul class="box-info">
-                    <li>
-                        <i class='bx bxs-package'></i>
-                        <span class="text">
-                            <h3>{{ stats.totalProduits|default(0) }}</h3>
-                            <p>Total Produits</p>
-                        </span>
-                    </li>
-                    <li>
-                        <i class='bx bxs-cart'></i>
-                        <span class="text">
-                            <h3>{{ stats.totalCommandes|default(0) }}</h3>
-                            <p>Total Commandes</p>
-                        </span>
-                    </li>
-                    <li>
-                        <i class='bx bx-money'></i>
-                        <span class="text">
-                            <h3>{{ stats.totalVentes|number_format(2, '.', ' ') }}</h3>
-                            <p>Recette Totale (TND)</p>
-                        </span>
-                    </li>
-                </ul>
-
-                <!-- Charts -->
-                <div class="charts-grid">
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3><i class='bx bxs-bar-chart-alt-2'></i> Commandes par statut</h3>
+            <div class="container py-4">
+                <h2>Mon Boutique</h2>
+                <nav class="nav nav-tabs mb-4">
+                    <a class="nav-link {% if section == 'produits' %}active{% endif %}" href="{{ path('admin_boutique', {'section': 'produits'}) }}">Produits</a>
+                    <a class="nav-link {% if section == 'commandes' %}active{% endif %}" href="{{ path('admin_boutique', {'section': 'commandes'}) }}">Commandes</a>
+                    <a class="nav-link {% if section == 'dashboard' %}active{% endif %}" href="{{ path('admin_boutique', {'section': 'dashboard'}) }}">Dashboard</a>
+                    <a class="nav-link {% if section == 'stock' %}active{% endif %}" href="{{ path('admin_boutique', {'section': 'stock'}) }}">Stock</a>
+                    <a class="nav-link {% if section == 'promotions' %}active{% endif %}" href="{{ path('admin_boutique', {'section': 'promotions'}) }}">Promotions</a>
+                </nav>
+                <div>
+                    {% if section == 'produits' %}
+                        <h4>Gestion des Produits</h4>
+                        <div class="mb-3 text-end">
+                            <a href="{{ path('admin_produit_ajouter') }}" class="btn btn-primary">Ajouter un produit</a>
                         </div>
-                        <div class="chart-body">
-                            <canvas id="commandesChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3><i class='bx bxs-pie-chart-alt-2'></i> Méthodes de paiement</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas id="paiementPieChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-            {% elseif section == 'produits' %}
-                <div class="table-data">
-                    <div class="order">
-                        <div class="head">
-                            <h3>Gestion des Produits</h3>
-                            <a href="{{ path('admin_produit_ajouter') }}" class="btn-add">
-                                <i class='bx bx-plus'></i> Ajouter un produit
-                            </a>
-                        </div>
-
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nom</th>
-                                <th>Prix</th>
-                                <th>Stock</th>
-                                <th>Catégorie</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for produit in produits %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
                                 <tr>
-                                    <td>{{ produit.id }}</td>
-                                    <td>{{ produit.nom }}</td>
-                                    <td>{{ produit.prix }} €</td>
-                                    <td>
-                                        <span class="stock-badge {% if produit.stock < 10 %}low-stock{% endif %}">
-                                            {{ produit.stock }}
-                                        </span>
-                                    </td>
-                                    <td>{{ produit.categorie ? produit.categorie.nom : '-' }}</td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a href="{{ path('admin_produit_modifier', {'id': produit.id}) }}" class="btn-action edit">
-                                                <i class='bx bx-edit'></i>
-                                            </a>
-                                            <form action="{{ path('admin_produit_supprimer', {'id': produit.id}) }}" method="post" class="inline-form" onsubmit="return confirm('Voulez-vous vraiment supprimer ce produit ?');">
+                                    <th>ID</th>
+                                    <th>Nom</th>
+                                    <th>Prix</th>
+                                    <th>Stock</th>
+                                    <th>Catégorie</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for produit in produits %}
+                                    <tr>
+                                        <td>{{ produit.id }}</td>
+                                        <td>{{ produit.nom }}</td>
+                                        <td>{{ produit.prix }} €</td>
+                                        <td>{{ produit.stock }}</td>
+                                        <td>{{ produit.categorie ? produit.categorie.nom : '' }}</td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-info">Voir</a>
+                                            <a href="{{ path('admin_produit_modifier', {'id': produit.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                                            <form action="{{ path('admin_produit_supprimer', {'id': produit.id}) }}" method="post" style="display:inline-block;" onsubmit="return confirm('Voulez-vous vraiment supprimer ce produit ?');">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('supprimer_produit_' ~ produit.id) }}">
-                                                <button type="submit" class="btn-action delete">
-                                                    <i class='bx bx-trash'></i>
-                                                </button>
+                                                <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
                                             </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% else %}
-                                <tr>
-                                    <td colspan="6" class="empty-state">Aucun produit trouvé.</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            {% elseif section == 'commandes' %}
-                <div class="table-data">
-                    <div class="order">
-                        <div class="head">
-                            <h3>Gestion des Commandes</h3>
-                            <button id="validerTousBtn" class="btn-validate" disabled>
-                                <i class='bx bx-check'></i> Valider les changements
-                            </button>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="6" class="text-center">Aucun produit trouvé.</td></tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Client</th>
-                                <th>Date</th>
-                                <th>Montant</th>
-                                <th>Paiement</th>
-                                <th>État</th>
-                            </tr>
-                            </thead>
-                            <tbody id="commandesTableBody">
-                            {% for commande in commandes %}
-                                <tr>
-                                    <td>{{ commande.id }}</td>
-                                    <td>{{ commande.utilisateur.nom }} {{ commande.utilisateur.prenom }}</td>
-                                    <td>{{ commande.date ? commande.date|date('d/m/Y H:i') : '-' }}</td>
-                                    <td>{{ commande.montant|number_format(2, '.', ' ') }} TND</td>
-                                    <td>
-                                        <span class="payment-badge {{ commande.statut == 'Payée en ligne' ? 'stripe' : 'cash' }}">
-                                            {{ commande.statut == 'Payée en ligne' ? 'Stripe' : 'Cash' }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <select class="status-select etat-select" data-id="{{ commande.id }}" data-token="{{ csrf_token('update_commande_status_' ~ commande.id) }}">
-                                            <option value="En attente" {% if commande.statut == 'En attente' %}selected{% endif %}>En attente</option>
-                                            <option value="Validée" {% if commande.statut == 'Validée' %}selected{% endif %}>Validée</option>
-                                            <option value="Expédiée" {% if commande.statut == 'Expédiée' %}selected{% endif %}>Expédiée</option>
-                                            <option value="Annulée" {% if commande.statut == 'Annulée' %}selected{% endif %}>Annulée</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            {% elseif section == 'promotions' %}
-                <div class="promotions-grid">
-                    <!-- Codes Promo Card -->
-                    <div class="promo-card">
-                        <div class="promo-header">
-                            <h3><i class='bx bxs-discount'></i> Codes Promo</h3>
-                            <a href="{{ path('admin_code_promo_new') }}" class="btn-add-small">
-                                <i class='bx bx-plus'></i> Nouveau code
-                            </a>
-                        </div>
-                        <div class="promo-body">
-                            <table class="promo-table">
+                        {% elseif section == 'commandes' %}
+                        <h4>Gestion des Commandes</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered align-middle" id="commandesTable">
                                 <thead>
                                 <tr>
-                                    <th>Code</th>
-                                    <th>Réduction</th>
+                                    <th>ID</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Montant</th>
+                                    <th>Paiement</th>
                                     <th>État</th>
-                                    <th>Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for code in codes_promo %}
+                                {% for commande in commandes %}
                                     <tr>
-                                        <td><strong>{{ code.code }}</strong></td>
+                                        <td>{{ commande.id }}</td>
+                                        <td>{{ commande.utilisateur.nom }} {{ commande.utilisateur.prenom }}</td>
+                                        <td>{{ commande.date ? commande.date|date('d/m/Y H:i') : '' }}</td>
+                                        <td>{{ commande.montant|number_format(2, '.', ' ') }} TND</td>
+                                        <td>{{ commande.statut == 'Payée en ligne' ? 'Stripe' : 'Cash' }}</td>
                                         <td>
-                                            {% if code.montantFixe %}
-                                                {{ code.montantFixe|number_format(2, ',', ' ') }} TND
-                                            {% elseif code.pourcentage %}
-                                                {{ code.pourcentage }}%
-                                            {% endif %}
+                                            <select class="form-select form-select-sm etat-select" data-id="{{ commande.id }}" data-token="{{ csrf_token('update_commande_status_' ~ commande.id) }}">
+                                                <option value="En attente" {% if commande.statut == 'En attente' %}selected{% endif %}>En attente</option>
+                                                <option value="Validée" {% if commande.statut == 'Validée' %}selected{% endif %}>Validée</option>
+                                                <option value="Expédiée" {% if commande.statut == 'Expédiée' %}selected{% endif %}>Expédiée</option>
+                                                <option value="Annulée" {% if commande.statut == 'Annulée' %}selected{% endif %}>Annulée</option>
+                                            </select>
                                         </td>
-                                        <td>
-                                            <span class="badge-status {{ code.actif ? 'active' : 'inactive' }}">
-                                                {{ code.actif ? 'Actif' : 'Inactif' }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <a href="{{ path('admin_code_promo_edit', {'id': code.id}) }}" class="btn-action edit">
-                                                <i class='bx bx-edit'></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                {% else %}
-                                    <tr>
-                                        <td colspan="4" class="empty-state">Aucun code promo</td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-
-                    <!-- Promotions Produits Card -->
-                    <div class="promo-card">
-                        <div class="promo-header">
-                            <h3><i class='bx bxs-offer'></i> Promotions sur Produits</h3>
-                            <button type="button" class="btn-add-small" data-modal="newPromoModal">
-                                <i class='bx bx-plus'></i> Nouvelle promotion
-                            </button>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button id="validerTousBtn" class="btn btn-success">Valider tous les changements</button>
                         </div>
-                        <div class="promo-body">
-                            <table class="promo-table">
-                                <thead>
-                                <tr>
-                                    <th>Produit</th>
-                                    <th>Réduction</th>
-                                    <th>Période</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for promo in promotions_produits %}
-                                    <tr>
-                                        <td>{{ promo.produit.nom }}</td>
-                                        <td><span class="discount-badge">{{ promo.pourcentage }}%</span></td>
-                                        <td class="date-range">
-                                            {{ promo.dateDebut|date('d/m/Y') }} - {{ promo.dateFin|date('d/m/Y') }}
-                                        </td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <button type="button" class="btn-action edit" data-modal="editPromoModal{{ promo.id }}">
-                                                    <i class='bx bx-edit'></i>
-                                                </button>
-                                                <form method="post" action="{{ path('admin_promotion_delete', {'id': promo.id}) }}" class="inline-form">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promo.id) }}">
-                                                    <button type="submit" class="btn-action delete" onclick="return confirm('Êtes-vous sûr ?')">
-                                                        <i class='bx bx-trash'></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% else %}
-                                    <tr>
-                                        <td colspan="4" class="empty-state">Aucune promotion active</td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Modal Nouvelle Promotion -->
-                <div class="modal" id="newPromoModal">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h3>Nouvelle Promotion</h3>
-                                <span class="close-modal">&times;</span>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const validerTousBtn = document.getElementById('validerTousBtn');
+                                if (!validerTousBtn) return;
+                                const selects = document.querySelectorAll('.etat-select');
+                                const originalValues = Array.from(selects).map(select => select.value);
+                                function getChangements() {
+                                    const changements = [];
+                                    selects.forEach((select, i) => {
+                                        if (select.value !== originalValues[i]) {
+                                            changements.push({
+                                                id: select.getAttribute('data-id'),
+                                                statut: select.value,
+                                                token: select.getAttribute('data-token'),
+                                                select: select
+                                            });
+                                        }
+                                    });
+                                    return changements;
+                                }
+                                function updateValiderBtnState() {
+                                    validerTousBtn.disabled = getChangements().length === 0;
+                                }
+                                selects.forEach((select, i) => {
+                                    select.addEventListener('change', updateValiderBtnState);
+                                });
+                                validerTousBtn.addEventListener('click', function() {
+                                    const changements = getChangements();
+                                    if (changements.length === 0) return;
+                                    let successCount = 0;
+                                    let errorCount = 0;
+                                    let doneCount = 0;
+                                    changements.forEach(({id, statut, token, select}, idx) => {
+                                        fetch("{{ path('admin_commandes_update_status') }}", {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/x-www-form-urlencoded',
+                                                'X-Requested-With': 'XMLHttpRequest',
+                                            },
+                                            body: `id=${id}&statut=${encodeURIComponent(statut)}&_token=${token}`
+                                        })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    select.classList.add('is-valid');
+                                                    select.classList.remove('is-invalid');
+                                                    originalValues[idx] = statut;
+                                                    showToast('État à jour !', 'success');
+                                                } else {
+                                                    select.classList.add('is-invalid');
+                                                    select.classList.remove('is-valid');
+                                                }
+                                            })
+                                            .catch(() => {
+                                                select.classList.add('is-invalid');
+                                                select.classList.remove('is-valid');
+                                            })
+                                            .finally(() => {
+                                                doneCount++;
+                                                if (doneCount === changements.length) {
+                                                    updateValiderBtnState();
+                                                }
+                                            });
+                                    });
+                                });
+                                updateValiderBtnState();
+                            });
+                            function showToast(message, type) {
+                                let toast = document.getElementById('customToast');
+                                if (!toast) {
+                                    toast = document.createElement('div');
+                                    toast.id = 'customToast';
+                                    toast.style.position = 'fixed';
+                                    toast.style.top = '30px';
+                                    toast.style.right = '30px';
+                                    toast.style.zIndex = 9999;
+                                    toast.style.minWidth = '200px';
+                                    toast.className = 'alert alert-' + type;
+                                    document.body.appendChild(toast);
+                                }
+                                toast.textContent = message;
+                                toast.className = 'alert alert-' + type;
+                                toast.style.display = 'block';
+                                setTimeout(() => { toast.style.display = 'none'; }, 2000);
+                            }
+                        </script>
+                        {% elseif section == 'dashboard' %}
+                        <h4>Dashboard Boutique</h4>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card bg-primary text-white mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Total Produits</h6>
+                                        <h2 class="card-text">{{ stats.totalProduits|default(0) }}</h2>
+                                    </div>
+                                </div>
                             </div>
-                            <form method="post" action="{{ path('admin_promotion_new') }}">
-                                <div class="modal-body">
-                                    <div class="form-group">
-                                        <label>Produit</label>
-                                        <select name="produit" required class="form-control">
-                                            <option value="">Sélectionner un produit</option>
-                                            {% for produit in produits %}
-                                                <option value="{{ produit.id }}">{{ produit.nom }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Pourcentage de réduction</label>
-                                        <input type="number" name="pourcentage" required min="1" max="99" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Date de début</label>
-                                        <input type="date" name="dateDebut" required class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Date de fin</label>
-                                        <input type="date" name="dateFin" required class="form-control">
+                            <div class="col-md-4">
+                                <div class="card bg-success text-white mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Total Commandes</h6>
+                                        <h2 class="card-text">{{ stats.totalCommandes|default(0) }}</h2>
                                     </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn-secondary close-modal-btn">Annuler</button>
-                                    <button type="submit" class="btn-primary">Créer</button>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-warning text-white mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Recette totale</h6>
+                                        <h2 class="card-text">{{ stats.totalVentes|number_format(2, '.', ' ') }} TND</h2>
+                                    </div>
                                 </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-white">
+                                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Commandes par statut</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="commandesChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-white">
+                                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Méthodes de paiement</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="paiementPieChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                // Bar chart Commandes par statut
+                                const ctx = document.getElementById('commandesChart').getContext('2d');
+                                new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: {{ chartData.labels|json_encode|raw }},
+                                        datasets: [{
+                                            label: 'Nombre de commandes',
+                                            data: {{ chartData.data|json_encode|raw }},
+                                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                            borderColor: 'rgba(54, 162, 235, 1)',
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        scales: {
+                                            y: { beginAtZero: true }
+                                        }
+                                    }
+                                });
+                                // Pie chart Méthodes de paiement
+                                const ctxPie = document.getElementById('paiementPieChart').getContext('2d');
+                                new Chart(ctxPie, {
+                                    type: 'pie',
+                                    data: {
+                                        labels: ['Cash', 'Stripe'],
+                                        datasets: [{
+                                            data: [{{ stats.nbPaiementCash|default(0) }}, {{ stats.nbPaiementStripe|default(0) }}],
+                                            backgroundColor: ['#36a2eb', '#ffcd56'],
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: { position: 'bottom' },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function(context) {
+                                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                        const value = context.parsed;
+                                                        const percent = total ? (value / total * 100).toFixed(1) : 0;
+                                                        return `${context.label}: ${value} (${percent}%)`;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+                        </script>
+                        {% elseif section == 'promotions' %}
+                        <h4>Gestion des Promotions</h4>
+                        <div class="row mt-4">
+                            <!-- Section Codes Promo -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0">Codes Promo</h5>
+                                        <a href="{{ path('admin_code_promo_new') }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-plus"></i> Nouveau code
+                                        </a>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>Code</th>
+                                                    <th>Réduction</th>
+                                                    <th>État</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for code in codes_promo %}
+                                                    <tr>
+                                                        <td>{{ code.code }}</td>
+                                                        <td>
+                                                            {% if code.montantFixe %}
+                                                                {{ code.montantFixe|number_format(2, ',', ' ') }} TND
+                                                            {% elseif code.pourcentage %}
+                                                                {{ code.pourcentage }}%
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                        <span class="badge {% if code.actif %}bg-success{% else %}bg-danger{% endif %}">
+                                                            {{ code.actif ? 'Actif' : 'Inactif' }}
+                                                        </span>
+                                                        </td>
+                                                        <td>
+                                                            <a href="{{ path('admin_code_promo_edit', {'id': code.id}) }}" class="btn btn-sm btn-info">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="4" class="text-center">Aucun code promo</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section Promotions sur Produits -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0">Promotions sur Produits</h5>
+                                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newPromoModal">
+                                            <i class="fas fa-plus"></i> Nouvelle promotion
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>Produit</th>
+                                                    <th>Réduction</th>
+                                                    <th>Période</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for promo in promotions_produits %}
+                                                    <tr>
+                                                        <td>{{ promo.produit.nom }}</td>
+                                                        <td>{{ promo.pourcentage }}%</td>
+                                                        <td>
+                                                            Du {{ promo.dateDebut|date('d/m/Y') }}<br>
+                                                            au {{ promo.dateFin|date('d/m/Y') }}
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editPromoModal{{ promo.id }}">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <form method="post" action="{{ path('admin_promotion_delete', {'id': promo.id}) }}" class="d-inline">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promo.id) }}">
+                                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette promotion ?')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="4" class="text-center">Aucune promotion active</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Nouvelle Promotion -->
+                        <div class="modal fade" id="newPromoModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Nouvelle Promotion</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="post" action="{{ path('admin_promotion_new') }}">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="produit" class="form-label">Produit</label>
+                                                <select class="form-select" id="produit" name="produit" required>
+                                                    <option value="">Sélectionner un produit</option>
+                                                    {% for produit in produits %}
+                                                        <option value="{{ produit.id }}">{{ produit.nom }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="pourcentage" class="form-label">Pourcentage de réduction</label>
+                                                <input type="number" class="form-control" id="pourcentage" name="pourcentage" required min="1" max="99">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="dateDebut" class="form-label">Date de début</label>
+                                                <input type="date" class="form-control" id="dateDebut" name="dateDebut" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="dateFin" class="form-label">Date de fin</label>
+                                                <input type="date" class="form-control" id="dateFin" name="dateFin" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            <button type="submit" class="btn btn-primary">Créer la promotion</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
-            {% endif %}
+            </div>
         </main>
     </section>
-{% endblock %}
-
-{% block javascripts %}
-    {% if section == 'dashboard' %}
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            // Bar chart
-            new Chart(document.getElementById('commandesChart'), {
-                type: 'bar',
-                data: {
-                    labels: {{ chartData.labels|json_encode|raw }},
-                    datasets: [{
-                        label: 'Commandes',
-                        data: {{ chartData.data|json_encode|raw }},
-                        backgroundColor: 'rgba(102, 126, 234, 0.8)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-
-            // Pie chart
-            new Chart(document.getElementById('paiementPieChart'), {
-                type: 'pie',
-                data: {
-                    labels: ['Cash', 'Stripe'],
-                    datasets: [{
-                        data: [{{ stats.nbPaiementCash|default(0) }}, {{ stats.nbPaiementStripe|default(0) }}],
-                        backgroundColor: ['#764ba2', '#667eea']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        </script>
-    {% elseif section == 'commandes' %}
-        <script>
-            const selects = document.querySelectorAll('.etat-select');
-            const validerBtn = document.getElementById('validerTousBtn');
-            const originalValues = Array.from(selects).map(s => s.value);
-
-            function updateButton() {
-                const hasChanges = Array.from(selects).some((s, i) => s.value !== originalValues[i]);
-                validerBtn.disabled = !hasChanges;
-            }
-
-            selects.forEach(s => s.addEventListener('change', updateButton));
-
-            validerBtn.addEventListener('click', function() {
-                const changes = [];
-                selects.forEach((select, i) => {
-                    if (select.value !== originalValues[i]) {
-                        changes.push({ select, i, id: select.dataset.id, statut: select.value, token: select.dataset.token });
-                    }
-                });
-
-                changes.forEach(({select, i, id, statut, token}) => {
-                    fetch("{{ path('admin_commandes_update_status') }}", {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: `id=${id}&statut=${encodeURIComponent(statut)}&_token=${token}`
-                    })
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.success) {
-                                originalValues[i] = statut;
-                                alert('État mis à jour !');
-                            }
-                        })
-                        .finally(() => updateButton());
-                });
-            });
-        </script>
-    {% elseif section == 'promotions' %}
-        <script>
-            // Modal handlers
-            document.querySelectorAll('[data-modal]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.getElementById(btn.dataset.modal).style.display = 'block';
-                });
-            });
-
-            document.querySelectorAll('.close-modal, .close-modal-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    this.closest('.modal').style.display = 'none';
-                });
-            });
-
-            window.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal')) {
-                    e.target.style.display = 'none';
-                }
-            });
-        </script>
-    {% endif %}
+    <!-- CONTENT -->
 {% endblock %}

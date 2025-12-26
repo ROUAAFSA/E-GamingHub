@@ -1,0 +1,155 @@
+{% extends 'basee.html.twig' %}
+
+{% block title %}Commentaires{% endblock %}
+
+{% block body %}
+    {% include 'Navbar/navbar_login.html.twig' %}
+<br><br>
+    <style>
+        body {
+            background-color: #121212;
+            font-family: 'Poppins', sans-serif;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            color: #b388ff;
+            margin-bottom: 2.5rem;
+        }
+
+        .comment-card {
+            background-color: #1e1e2f;
+            border: 2px solid white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .comment-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .comment-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+
+        .comment-content {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .comment-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border: none;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-show {
+            background-color: #81c784;
+            color: #fff;
+        }
+
+        .btn-show:hover {
+            background-color: #66bb6a;
+        }
+
+        .btn-edit {
+            background-color: #64b5f6;
+            color: #fff;
+        }
+
+        .btn-edit:hover {
+            background-color: #42a5f5;
+        }
+
+        .signaled {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .create-new {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .create-new a {
+            background-color: #b388ff;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .create-new a:hover {
+            background-color: #9a68e8;
+        }
+    </style>
+
+    <div class="container">
+        <h1>Liste des Commentaires</h1>
+
+        {% if commentaires|length > 0 %}
+            {% for commentaire in commentaires %}
+                <div class="comment-card">
+                    <div class="comment-meta">
+                        <span><strong>ID:</strong> {{ commentaire.id }}</span>
+                        <span><strong>Auteur:</strong> {{ commentaire.auteur }}</span>
+                    </div>
+
+                    <div class="comment-meta">
+                        <span><strong>Date:</strong> {{ commentaire.dateCreation ? commentaire.dateCreation|date('d/m/Y H:i') : 'N/A' }}</span>
+                        <span class="{{ commentaire.signaled ? 'signaled' : '' }}">
+                            {{ commentaire.signaled ? '⚠️ Signalé' : '✔️ Non signalé' }}
+                        </span>
+                    </div>
+
+                    <div class="comment-content">
+                        {{ commentaire.contenu }}
+                    </div>
+
+                    <div class="comment-actions">
+                        <a href="{{ path('app_commentaire_show', {'id': commentaire.id}) }}" class="btn btn-show">
+                            Voir
+                        </a>
+                        <a href="{{ path('app_commentaire_edit', {'id': commentaire.id}) }}" class="btn btn-edit">
+                            Modifier
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align:center; color:#aaa;">Aucun commentaire trouvé.</p>
+        {% endif %}
+
+        <div class="create-new">
+            <a href="{{ path('app_commentaire_new') }}">➕ Nouveau Commentaire</a>
+        </div>
+    </div>
+{% endblock %}

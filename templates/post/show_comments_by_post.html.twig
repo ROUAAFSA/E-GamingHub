@@ -1,0 +1,293 @@
+{% extends 'basee.html.twig' %}
+
+{% block title %}Détails du Post{% endblock %}
+
+{% block body %}
+{% include 'Navbar/navbar_login.html.twig' %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        body {
+            background-color: #121212;
+            font-family: 'Poppins', sans-serif;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #b388ff;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            width: 60px;
+            height: 4px;
+            background-color: #b388ff;
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #b388ff;
+            margin-bottom: 1.5rem;
+        }
+
+        .post-card {
+            background-color: #1e1e2f;
+            border: 2px solid white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.05);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .post-image {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1.5rem;
+        }
+
+        .post-details {
+            font-size: 1rem;
+            color: #cccccc;
+        }
+
+        .post-details p {
+            margin-bottom: 0.75rem;
+        }
+
+        .post-details strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .post-meta {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .commentaires-list {
+            margin-top: 2rem;
+        }
+
+        .comment-card {
+            background-color: #2a2a3b;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .comment-card:hover {
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .comment-card.highlighted {
+            border: 2px solid #b388ff;
+            background-color: #2e2e4b;
+        }
+
+        .comment-meta {
+            color: #cccccc;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .comment-meta span.highlighted {
+            color: #b388ff;
+            font-weight: 600;
+        }
+
+        .comment-content {
+            font-size: 1rem;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+        }
+
+        .comment-status {
+            font-size: 0.9rem;
+            color: #80cbc4;
+        }
+
+        .comment-status.signaled {
+            color: #e57373;
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary {
+            background-color: #9575cd;
+            color: #ffffff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7e57c2;
+        }
+
+        .btn-edit {
+            background-color: #81c784;
+            color: #ffffff;
+        }
+
+        .btn-edit:hover {
+            background-color: #66bb6a;
+        }
+
+        .btn-danger {
+            background-color: #e57373;
+            color: #ffffff;
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .no-comments {
+            color: #999;
+            font-size: 1rem;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .post-card {
+                padding: 1.5rem;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="container">
+        <h1>📜 {{ post.titre }}</h1>
+
+        <div class="post-card">
+            <div class="post-details">
+                {% if commentaire_id is defined %}
+                    <p class="post-meta">Affiché via Commentaire ID: {{ commentaire_id }}</p>
+                {% endif %}
+                {% if post.imageName %}
+                    <img src="{{ asset('Uploads/images/' ~ post.imageName) }}" alt="{{ post.titre }}" class="post-image">
+                {% endif %}
+                <p><strong>Description:</strong> {{ post.description }}</p>
+                <p><strong>Catégorie:</strong> {{ post.categorie }}</p>
+                <p><strong>Mis à jour le:</strong> {{ post.updatedAt|date('d/m/Y H:i') }}</p>
+                <p><strong>Likes:</strong> {{ post.likeCount }} <i class="fas fa-thumbs-up"></i></p>
+                <p><strong>Dislikes:</strong> {{ post.dislikeCount }} <i class="fas fa-thumbs-down"></i></p>
+                <p><strong>Signalé:</strong> {{ post.signaled ? '<span class="signaled">⚠️ Oui</span>' : '<span class="status">✔️ Non</span>'|raw }}</p>
+                <p><strong>Activé:</strong> {{ post.enable ? '<span class="status">✅ Oui</span>' : '<span class="signaled">❌ Non</span>'|raw }}</p>
+            </div>
+        </div>
+
+        <div class="commentaires-list">
+            <h3>💬 Commentaires</h3>
+            {% if post.commentaires|length > 0 %}
+                {% for commentaire in post.commentaires %}
+                    <div class="comment-card {% if commentaire.id == commentaire_id|default(0) %}highlighted{% endif %}">
+                        <div class="comment-meta">
+                            <span><strong>Auteur:</strong> {{ commentaire.auteur }}</span>
+                            telligentia: Affichez uniquement les commentaires signalés
+                            <span><strong>Date:</strong> {{ commentaire.dateCreation|date('d/m/Y H:i') }}</span>
+                            {% if commentaire.id == commentaire_id|default(0) %}
+                                <span class="highlighted">(Ce commentaire)</span>
+                            {% endif %}
+                        </div>
+                        พระ
+                        <p class="comment-content">{{ commentaire.contenu }}</p>
+                        <p class="comment-status {{ commentaire.signaled ? 'signaled' : 'status' }}">
+                            <strong>Signalé:</strong> {{ commentaire.signaled ? '⚠️ Oui' : '✔️ Non' }}
+                        </p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-comments">Aucun commentaire pour ce post.</p>
+            {% endif %}
+        </div>
+
+        <div class="actions">
+            <a href="{{ path('app_post_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+            <a href="{{ path('app_post_edit', {'id': post.id}) }}" class="btn btn-edit">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <form method="post" action="{{ path('app_post_delete', {'id': post.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce post ?');" style="display: inline;">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            {% if commentaire_id is defined %}
+            const highlightedComment = document.querySelector('.comment-card.highlighted');
+            if (highlightedComment) {
+                highlightedComment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            {% endif %}
+        });
+    </script>
+{% endblock %}

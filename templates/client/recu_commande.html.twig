@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<div style="font-family: Arial, sans-serif; padding: 30px;">
+    <h2 style="color: #2193b0;">Reçu de commande</h2>
+    <p><strong>Client :</strong> {{ utilisateur.nom }} {{ utilisateur.prenom }}</p>
+    <p><strong>Date :</strong> {{ date|date('d/m/Y H:i') }}</p>
+    <p><strong>Méthode de paiement :</strong> {{ paiement }}</p>
+    <hr>
+    <table width="100%" border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse;">
+        <thead style="background: #eaf6fb; color: #2193b0;">
+            <tr>
+                <th>Produit</th>
+                <th>Prix unitaire</th>
+                <th>Quantité</th>
+                <th>Sous-total</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% set total = 0 %}
+        {% for commande in commandes %}
+            <tr>
+                <td>{{ commande.produit.nom }}</td>
+                <td>{{ commande.produit.prix|number_format(2, '.', ' ') }} TND</td>
+                <td>1</td>
+                <td>{{ commande.montant|number_format(2, '.', ' ') }} TND</td>
+            </tr>
+            {% set total = total + commande.montant %}
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" align="right"><strong>Total :</strong></td>
+                <td><strong>{{ total|number_format(2, '.', ' ') }} TND</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+    <p style="margin-top: 30px; color: #888; font-size: 0.95em;">Merci pour votre achat sur E-SPORTIFY !</p>
+</div>
+{% endblock %} 

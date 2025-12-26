@@ -1,0 +1,344 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    body { background: linear-gradient(120deg, #2193b0 0%, #6dd5ed 100%) !important; }
+    .container.boutique-container {
+        background-color: #1A0D21;
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(45, 171, 202, 0.27);
+        margin-top: 32px;
+        padding: 2.5rem 2rem;
+    }
+    .boutique-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--text-purple);
+    }
+    .produit-card .card {
+        background-color: rgba(26, 13, 33, 0.9) !important;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(45, 171, 202, 0.27);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+    }
+    .produit-card .card-img-top {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        margin: 0 auto;
+        display: block;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(33,147,176,0.07);
+        margin-top: 18px;
+    }
+    .produit-card .card-body {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding-bottom: 1.5rem;
+    }
+    .produit-card .card-title, .produit-card .card-text {
+        color: #fff;
+        text-align: center;
+    }
+    .produit-card .btn {
+        width: 100%;
+        margin-top: 0.7rem;
+    }
+    @media (max-width: 768px) {
+        .container.boutique-container {
+            padding: 1rem 0.5rem;
+        }
+        .produit-card .card-img-top {
+            width: 100px;
+            height: 100px;
+        }
+    }
+    .sidebar-boutique {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 220px;
+        background: #fff;
+        box-shadow: 2px 0 12px rgba(33,147,176,0.08);
+        border-top-right-radius: 24px;
+        border-bottom-right-radius: 24px;
+        z-index: 100;
+        padding: 2.5rem 1rem 1rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .sidebar-boutique h4 {
+        color: #2193b0;
+        font-weight: bold;
+        margin-bottom: 2rem;
+    }
+    .sidebar-boutique .nav-link {
+        border-radius: 22px;
+        font-weight: 600;
+        color: #2193b0;
+        background: #eaf6fb;
+        margin-bottom: 1rem;
+        transition: background 0.2s, color 0.2s;
+        font-size: 1.1rem;
+        width: 100%;
+        text-align: left;
+        padding: 0.7em 1.2em;
+    }
+    .sidebar-boutique .nav-link.active, .sidebar-boutique .nav-link:focus {
+        background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+        color: #fff !important;
+    }
+    .main-boutique-content {
+        margin-left: 240px;
+        padding: 2.5rem 2rem;
+    }
+    .card {
+        background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(45, 171, 202, 0.27);
+        color: #fff;
+    }
+    .card .card-body h3, .card .card-body p { color: #fff; }
+    .card-header { background: transparent; border: none; }
+    .table-responsive { border-radius: 18px; overflow: hidden; box-shadow: 0 2px 12px rgba(33,147,176,0.08); }
+    .table {
+        background: #fff;
+        color: #222;
+        border-radius: 18px;
+        overflow: hidden;
+        margin-bottom: 0;
+    }
+    .table thead {
+        background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+        color: #fff;
+        font-weight: 600;
+    }
+    .table th, .table td { vertical-align: middle; }
+    .table tbody tr:hover { background: #f3f9fb; }
+    .btn, .btn-outline-primary, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-success {
+        border-radius: 22px !important;
+        font-weight: 600;
+        padding: 0.4em 1.3em;
+        box-shadow: 0 2px 8px rgba(33,147,176,0.07);
+        border: none;
+        color: #fff !important;
+        background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover, .btn-outline-primary:hover, .btn-outline-info:hover, .btn-outline-warning:hover, .btn-outline-danger:hover, .btn-outline-success:hover {
+        background: linear-gradient(90deg, #6dd5ed 0%, #2193b0 100%);
+        color: #fff !important;
+        box-shadow: 0 4px 16px rgba(33,147,176,0.13);
+    }
+    .search-container { margin-bottom: 20px; position: relative; }
+    .search-input {
+        color: #000000 !important;
+        width: 100%;
+        padding: 10px 15px 10px 40px;
+        border-radius: 22px;
+        border: 1px rgb(0, 2, 2);
+        background:rgb(255,255,255);
+        font-size: 1em;
+        transition: border 0.2s;
+    }
+    .search-input:focus { border: 1.5px solid #2193b0; outline: none; background: #fff;  color: #000000 !important; }
+    .search-icon { left: 15px; color: #2193b0; position: absolute; top: 50%; transform: translateY(-50%); }
+    .produits-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        justify-content: flex-start;
+    }
+    .produit-card {
+        flex: 1 1 300px;
+        max-width: 320px;
+        min-width: 260px;
+        margin-bottom: 2rem;
+        display: flex;
+    }
+    .produit-card .card {
+        width: 100%;
+    }
+    .produit-card .card-img-top {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        margin: 0 auto;
+        display: block;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(33,147,176,0.07);
+        margin-top: 18px;
+    }
+    @media (max-width: 900px) {
+        .produits-grid {
+            gap: 1rem;
+        }
+        .produit-card {
+            flex: 1 1 45%;
+            max-width: 48%;
+        }
+    }
+    @media (max-width: 600px) {
+        .produits-grid {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .produit-card {
+            max-width: 100%;
+            min-width: 0;
+        }
+        .produit-card .card-img-top {
+            width: 100px;
+            height: 100px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+{% include 'Navbar/navbar_login.html.twig' %}
+<div class="container boutique-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 title text-white" style="font-family: 'Montserrat', sans-serif; font-weight: 700; letter-spacing: 1px;"><span style="color: var(--text-purple);">Boutique</span></h1>
+        </div>
+        <div class="d-flex align-items-center" style="gap: 1rem;">
+            <a href="{{ path('boutique_client', {'section': 'commandes'}) }}" class="btn btn-outline-primary">Mes commandes</a>
+            <a href="{{ path('panier_client') }}" class="btn position-relative">
+                <i class="ri-shopping-cart-2-line" style="font-size: 1.5rem;"></i>
+                {% set panier = app.session.get('panier', {}) %}
+                {% set nbArticles = panier|length %}
+                {% if nbArticles > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.8rem;">{{ nbArticles }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+    <div class="search-container d-flex align-items-center" style="gap: 1rem;">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchProduitInput" class="search-input" placeholder="Rechercher un produit..." style="background-color: rgb(255,255,255); border: 1px solid rgba(123, 163, 227, 0.99); border-radius: 5px; color: #000;">
+        <select id="sortProduitSelect" class="form-select" style="width:220px; border-radius:5px;">
+            <option value="">Trier par...</option>
+            <option value="prix-asc">Prix croissant</option>
+            <option value="prix-desc">Prix décroissant</option>
+            <option value="nom-asc">Nom A-Z</option>
+            <option value="nom-desc">Nom Z-A</option>
+            <option value="stock-asc">Stock croissant</option>
+            <option value="stock-desc">Stock décroissant</option>
+        </select>
+    </div>
+    <div class="produits-grid mt-4" id="produitsGrid">
+        {% for produit in produits %}
+        <div class="produit-card" data-nom="{{ produit.nom|lower }}" data-prix="{{ produit.prix }}" data-stock="{{ produit.stock }}">
+            <div class="card h-100 d-flex flex-column justify-content-between align-items-center">
+                <img src="{{ produit.image ? asset(produit.image) : asset('images/default.png') }}"
+                     class="card-img-top"
+                     alt="{{ produit.nom }}"
+                     onerror="this.onerror=null;this.src='{{ asset('images/default.png') }}';this.alt='Image non disponible';">
+                <div class="card-body d-flex flex-column justify-content-between align-items-center">
+                    <h5 class="card-title">{{ produit.nom }}</h5>
+                    <p class="card-text mb-1"><strong>Prix :</strong> {{ produit.prix|number_format(2, '.', ' ') }} TND</p>
+                    <p class="card-text mb-2"><strong>Stock :</strong> {{ produit.stock }}</p>
+                    <form method="post" action="{{ path('ajouter_au_panier', {'id': produit.id}) }}">
+                        <button type="submit" class="btn btn-success">Ajouter au panier</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center text-white">Aucun produit trouvé.</div>
+        {% endfor %}
+    </div>
+    {% if section == 'commandes' %}
+    <div class="row">
+        {% if commandes|length > 0 %}
+            <div class="col-12">
+                <table class="table table-hover bg-white rounded shadow-sm">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Produit</th>
+                            <th>Prix</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for commande in commandes %}
+                        <tr>
+                            <td>{{ commande.date ? commande.date|date('d/m/Y H:i') : '' }}</td>
+                            <td>{{ commande.produit.nom }}</td>
+                            <td>{{ commande.montant|number_format(2, '.', ' ') }} TND</td>
+                            <td>{{ commande.statut }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="col-12 text-center text-white">Aucune commande trouvée.</div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+<script>
+// Recherche sur les cartes produits
+const searchInput = document.getElementById('searchProduitInput');
+const produitsGrid = document.getElementById('produitsGrid');
+const cards = produitsGrid ? produitsGrid.querySelectorAll('.produit-card') : [];
+if (searchInput && produitsGrid) {
+    searchInput.addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        cards.forEach(card => {
+            const nom = card.getAttribute('data-nom');
+            card.style.display = nom.includes(filter) ? '' : 'none';
+        });
+    });
+}
+// Tri des produits
+const sortSelect = document.getElementById('sortProduitSelect');
+if (sortSelect && produitsGrid) {
+    sortSelect.addEventListener('change', function() {
+        const value = this.value;
+        const cardsArr = Array.from(cards);
+        let sorted;
+        switch(value) {
+            case 'prix-asc':
+                sorted = cardsArr.sort((a,b) => parseFloat(a.dataset.prix) - parseFloat(b.dataset.prix));
+                break;
+            case 'prix-desc':
+                sorted = cardsArr.sort((a,b) => parseFloat(b.dataset.prix) - parseFloat(a.dataset.prix));
+                break;
+            case 'nom-asc':
+                sorted = cardsArr.sort((a,b) => a.dataset.nom.localeCompare(b.dataset.nom));
+                break;
+            case 'nom-desc':
+                sorted = cardsArr.sort((a,b) => b.dataset.nom.localeCompare(a.dataset.nom));
+                break;
+            case 'stock-asc':
+                sorted = cardsArr.sort((a,b) => parseInt(a.dataset.stock) - parseInt(b.dataset.stock));
+                break;
+            case 'stock-desc':
+                sorted = cardsArr.sort((a,b) => parseInt(b.dataset.stock) - parseInt(a.dataset.stock));
+                break;
+            default:
+                sorted = cardsArr;
+        }
+        sorted.forEach(card => produitsGrid.appendChild(card));
+    });
+}
+</script>
+{% endblock %} 

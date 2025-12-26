@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres du profil</title>
+    
+    {# Bootstrap CSS #}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    {# CSS personnalisé #}
+    <link rel="stylesheet" href="{{ asset('ProfileSettings/style.css') }}">
+    <style>
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .invalid-feedback {
+            display: none;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+    </style>
+    
+    {# Remixicons #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.css">
+    
+    {# CSS de la navbar #}
+    <link rel="stylesheet" href="{{ asset('navbar/css/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('navbar/scss/main.scss') }}">
+</head>
+<body>
+    {{ include('Navbar/navbar_login.html.twig') }}
+
+    <div class="container light-style flex-grow-1 container-p-y">
+        <h4 class="font-weight-bold py-3 mb-4">
+            Paramètres du compte
+        </h4>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <div class="card overflow-hidden">
+            <div class="row no-gutters row-bordered row-border-light">
+                <div class="col-md-3 pt-0">
+                    <div class="list-group list-group-flush account-settings-links">
+                        <a class="list-group-item list-group-item-action active" data-toggle="list" href="#account-general">Général</a>
+                        <a class="list-group-item list-group-item-action" data-toggle="list" href="#account-change-password">Changer le mot de passe</a>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <form action="{{ path('app_profile_settings_update') }}" method="POST" enctype="multipart/form-data">
+                        <div class="tab-content">
+                            <div class="tab-pane fade active show" id="account-general">
+                                <div class="card-body media align-items-center">
+                                    <img src="{{ asset(user.photo) }}" alt="Photo de profil" class="d-block ui-w-80">
+                                    <div class="media-body ml-4">
+                                        <label class="btn btn-outline-primary">
+                                            Changer la photo
+                                            <input type="file" name="photo" class="account-settings-fileinput" accept="image/*">
+                                        </label>
+                                        <div class="text-light small mt-1">JPG, GIF ou PNG. Taille max 800K</div>
+                                    </div>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="form-label">Nom</label>
+                                        <input type="text" name="nom" class="form-control mb-1" value="{{ user.nom }}">
+                                        <div class="error-message" data-error="nom"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Prénom</label>
+                                        <input type="text" name="prenom" class="form-control" value="{{ user.prenom }}">
+                                        <div class="error-message" data-error="prenom"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">E-mail</label>
+                                        <input type="email" name="email" class="form-control mb-1" value="{{ user.email }}">
+                                        <div class="error-message" data-error="email"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="account-change-password">
+                                <div class="card-body pb-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Mot de passe actuel</label>
+                                        <input type="password" name="current_password" class="form-control">
+                                        <div class="error-message" data-error="current_password"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nouveau mot de passe</label>
+                                        <input type="password" name="new_password" class="form-control">
+                                        <div class="error-message" data-error="new_password"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Confirmer le nouveau mot de passe</label>
+                                        <input type="password" name="confirm_password" class="form-control">
+                                        <div class="error-message" data-error="confirm_password"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right mt-3 card-body">
+                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteAccountModal">
+                                Supprimer le compte
+                            </button>
+                            <a href="{{ path('app_profile') }}" class="btn btn-default">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation pour les modifications -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirmation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Êtes-vous sûr de vouloir modifier ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="confirmSubmit">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation pour la suppression du compte -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" role="dialog" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteAccountModalLabel">Supprimer le compte</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger font-weight-bold">Attention ! Cette action est irréversible.</p>
+                    <p>Pour confirmer la suppression de votre compte, veuillez écrire "DELETE" ci-dessous :</p>
+                    <input type="text" class="form-control" id="deleteConfirmation" placeholder="Tapez DELETE">
+                    <div id="deleteError" class="text-danger mt-2" style="display: none;">
+                        Veuillez écrire exactement "DELETE" pour confirmer.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Supprimer définitivement</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Scripts JavaScript #}
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('navbar/js/main.js') }}" defer></script>
+    <script>
+        let formToSubmit = null;
+        
+        // Fonction pour réinitialiser les messages d'erreur
+        function resetErrors(form) {
+            form.querySelectorAll('.error-message').forEach(error => {
+                error.textContent = '';
+                error.classList.remove('show');
+            });
+            form.querySelectorAll('.form-control').forEach(input => {
+                input.classList.remove('is-invalid');
+            });
+        }
+
+        // Fonction pour afficher les erreurs
+        function showErrors(form, errors) {
+            Object.keys(errors).forEach(field => {
+                const errorElement = form.querySelector(`[data-error="${field}"]`);
+                const inputElement = form.querySelector(`[name="${field}"]`);
+                if (errorElement) {
+                    errorElement.textContent = errors[field];
+                    errorElement.classList.add('show');
+                    if (inputElement) {
+                        inputElement.classList.add('is-invalid');
+                    }
+                }
+            });
+        }
+
+        // Validation du formulaire
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            resetErrors(this);
+            
+            let errors = {};
+            let hasError = false;
+
+            // Validation du nom
+            const nom = this.querySelector('[name="nom"]').value.trim();
+            if (nom === '') {
+                errors.nom = 'Veuillez entrer votre nom.';
+                hasError = true;
+            }
+
+            // Validation du prénom
+            const prenom = this.querySelector('[name="prenom"]').value.trim();
+            if (prenom === '') {
+                errors.prenom = 'Veuillez entrer votre prénom.';
+                hasError = true;
+            }
+
+            // Validation de l'email
+            const email = this.querySelector('[name="email"]').value.trim();
+            if (email === '') {
+                errors.email = 'Veuillez entrer votre adresse email.';
+                hasError = true;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                errors.email = 'Veuillez entrer une adresse email valide.';
+                hasError = true;
+            }
+
+            // Validation du mot de passe si on est dans l'onglet changement de mot de passe
+            if (document.querySelector('#account-change-password').classList.contains('active')) {
+                const currentPassword = this.querySelector('[name="current_password"]').value;
+                const newPassword = this.querySelector('[name="new_password"]').value;
+                const confirmPassword = this.querySelector('[name="confirm_password"]').value;
+
+                if (currentPassword === '') {
+                    errors.current_password = 'Veuillez entrer votre mot de passe actuel.';
+                    hasError = true;
+                }
+
+                if (newPassword === '') {
+                    errors.new_password = 'Veuillez entrer un nouveau mot de passe.';
+                    hasError = true;
+                } else if (newPassword.length < 6) {
+                    errors.new_password = 'Le mot de passe doit contenir au moins 6 caractères.';
+                    hasError = true;
+                }
+
+                if (confirmPassword === '') {
+                    errors.confirm_password = 'Veuillez confirmer votre nouveau mot de passe.';
+                    hasError = true;
+                } else if (confirmPassword !== newPassword) {
+                    errors.confirm_password = 'Les mots de passe ne correspondent pas.';
+                    hasError = true;
+                }
+            }
+
+            if (hasError) {
+                showErrors(this, errors);
+            } else {
+                formToSubmit = this;
+                $('#confirmModal').modal('show');
+            }
+        });
+
+        document.getElementById('confirmSubmit').addEventListener('click', function() {
+            if (formToSubmit) {
+                $('#confirmModal').modal('hide');
+                formToSubmit.submit();
+            }
+        });
+
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            const deleteInput = document.getElementById('deleteConfirmation');
+            const deleteError = document.getElementById('deleteError');
+            
+            if (deleteInput.value === 'DELETE') {
+                const deleteForm = document.createElement('form');
+                deleteForm.method = 'POST';
+                deleteForm.action = '{{ path('app_delete_account') }}';
+                document.body.appendChild(deleteForm);
+                deleteForm.submit();
+            } else {
+                deleteError.style.display = 'block';
+            }
+        });
+
+        document.getElementById('deleteConfirmation').addEventListener('input', function() {
+            document.getElementById('deleteError').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

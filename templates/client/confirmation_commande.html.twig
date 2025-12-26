@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<div class="container py-5 text-center">
+    <h2 class="mb-4" style="color:#2193b0;font-weight:bold;">Commande validée !</h2>
+    <p>Votre commande a bien été enregistrée et payée en ligne.</p>
+    <div class="mt-4 d-flex justify-content-center gap-3" style="gap: 20px;">
+        <a href="/mes_reçus/{{ pdfFileName }}" class="btn btn-primary" target="_blank">Télécharger mon reçu PDF</a>
+        <a href="{{ path('boutique_client', {'section': 'produits'}) }}" class="btn btn-outline-secondary">Retour à la boutique</a>
+    </div>
+</div>
+{% endblock %} 

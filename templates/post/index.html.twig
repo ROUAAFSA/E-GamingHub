@@ -1,0 +1,485 @@
+{% extends 'basee.html.twig' %}
+
+{% block title %}Vlog Posts{% endblock %}
+
+{% block body %}
+
+{% include 'Navbar/navbar_login.html.twig' %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #121212;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            width: 60px;
+            height: 4px;
+            background-color: #b388ff;
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background-color: #1e1e2f;
+            border-radius: 12px;
+            border: 2px solid white;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            color: white;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            position: relative;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-image .no-image {
+            width: 100%;
+            height: 100%;
+            background-color: #333;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .category {
+            display: inline-block;
+            background-color: #6a1b9a;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-content h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-content h2 a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .card-content h2 a:hover {
+            color: #b388ff;
+        }
+
+        .card-content p {
+            font-size: 0.9rem;
+            color: #cccccc;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #dddddd;
+            margin-bottom: 1rem;
+        }
+
+        .likes-dislikes {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .likes-dislikes button {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 0.25rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .likes-dislikes button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .likes-dislikes button.active {
+            background-color: rgba(179, 136, 255, 0.3);
+            color: #b388ff;
+        }
+
+        .likes-dislikes button:focus {
+            outline: none;
+        }
+
+        .status-indicators {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .status-indicators .status {
+            color: #80cbc4;
+        }
+
+        .status-indicators .signaled {
+            color: #e57373;
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .actions a {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .actions .view {
+            color: #b388ff;
+            background-color: rgba(179, 136, 255, 0.1);
+        }
+
+        .actions .view:hover {
+            background-color: rgba(179, 136, 255, 0.3);
+        }
+
+        .actions .edit {
+            color: #81c784;
+            background-color: rgba(129, 199, 132, 0.1);
+        }
+
+        .actions .edit:hover {
+            background-color: rgba(129, 199, 132, 0.3);
+        }
+
+        .actions .see-post {
+            color: #ffca28;
+            background-color: rgba(255, 202, 40, 0.1);
+        }
+
+        .actions .see-post:hover {
+            background-color: rgba(255, 202, 40, 0.3);
+        }
+
+        .actions .see-post.disabled {
+            color: #666;
+            background-color: rgba(255, 255, 255, 0.05);
+            cursor: not-allowed;
+        }
+
+        .actions .comment {
+            color: #ff6f61;
+            background-color: rgba(255, 111, 97, 0.1);
+        }
+
+        .actions .comment:hover {
+            background-color: rgba(255, 111, 97, 0.3);
+        }
+
+        .no-posts {
+            text-align: center;
+            padding: 3rem 0;
+            color: #999;
+            font-size: 1.25rem;
+        }
+
+        .create-new {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .create-new a {
+            display: inline-block;
+            background-color: #b388ff;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .create-new a:hover {
+            background-color: #9b68e4;
+        }
+
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 0.5rem;
+        }
+
+        .pagination span, .pagination a {
+            padding: 0.5rem 1rem;
+            background-color: #1e1e2f;
+            border: 1px solid #b388ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background-color: #b388ff;
+            color: #1e1e2f;
+        }
+
+        .pagination .current {
+            background-color: #b388ff;
+            color: #1e1e2f;
+        }
+    </style>
+
+    <div class="container">
+        <h1>Discover Vlog Posts</h1>
+
+        {% if posts|length > 0 %}
+            <div class="grid">
+                {% for post in posts %}
+                    <div class="card">
+                        <div class="card-image">
+                            {% if post.imageName %}
+                                <img src="{{ asset('Uploads/images/' ~ post.imageName) }}" alt="{{ post.titre }}">
+                            {% else %}
+                                <div class="no-image">No Image</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="card-content">
+                            <span class="category">{{ post.categorie }}</span>
+
+                            <h2>
+                                <a href="{{ path('app_post_show', {'id': post.id}) }}">
+                                    {{ post.titre }}
+                                </a>
+                            </h2>
+
+                            <p>{{ post.description }}</p>
+
+                            <div class="meta-info">
+                                <span>Updated: {{ post.updatedAt ? post.updatedAt|date('M d, Y') : 'N/A' }}</span>
+                                <div class="likes-dislikes" data-post-id="{{ post.id }}">
+                                    <input type="hidden" class="csrf-like" value="{{ csrf_token('like' ~ post.id) }}">
+                                    <input type="hidden" class="csrf-dislike" value="{{ csrf_token('dislike' ~ post.id) }}">
+                                    <button class="like-btn {{ post.id in app.session.get('liked_posts', []) ? 'active' : '' }}" title="Like">
+                                        <i class="fas fa-thumbs-up"></i> <span class="like-count">{{ post.likeCount }}</span>
+                                    </button>
+                                    <button class="dislike-btn {{ post.id in app.session.get('disliked_posts', []) ? 'active' : '' }}" title="Dislike">
+                                        <i class="fas fa-thumbs-down"></i> <span class="dislike-count">{{ post.dislikeCount }}</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="status-indicators">
+                                <span class="status">Status: {{ post.enable ? 'Active' : 'Inactive' }}</span>
+                                {% if post.signaled %}
+                                    <span class="signaled">⚠️ Signaled</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="actions">
+                                <a href="{{ path('app_post_show', {'id': post.id}) }}" class="view">View Post</a>
+                                <a href="{{ path('app_post_edit', {'id': post.id}) }}" class="edit">Edit</a>
+                                {% if post.commentaires|length > 0 %}
+                                    <a href="{{ path('app_post_by_commentaire', {'commentaireId': post.commentaires|first.id}) }}" class="see-post">See Post by Comment</a>
+                                {% else %}
+                                    <a href="#" class="see-post disabled" title="No comments available">See Post by Comment</a>
+                                {% endif %}
+                                <a href="{{ path('app_commentaire_new_for_post', {'postId': post.id}) }}" class="comment">Commenter</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-posts">
+                <p>No posts found. Be the first to share something!</p>
+            </div>
+        {% endif %}
+
+        <div class="create-new">
+            <a href="{{ path('app_post_new') }}">Create New Post</a>
+        </div>
+
+        {# Pagination controls #}
+        <div class="navigation">
+            {{ knp_pagination_render(posts, '@KnpPaginator/Pagination/sliding.html.twig', {}, {
+                'align': 'center',
+                'size': 'large',
+                'rounded': true
+            }) }}
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.like-btn').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const container = button.closest('.likes-dislikes');
+                    const postId = container.dataset.postId;
+                    const csrfToken = container.querySelector('.csrf-like').value;
+                    const likeCountSpan = button.querySelector('.like-count');
+                    const dislikeBtn = container.querySelector('.dislike-btn');
+                    const dislikeCountSpan = dislikeBtn.querySelector('.dislike-count');
+
+                    try {
+                        const response = await fetch(`/post/${postId}/like`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            body: new URLSearchParams({
+                                '_token': csrfToken,
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+
+                        const data = await response.json();
+                        likeCountSpan.textContent = data.likeCount;
+                        dislikeCountSpan.textContent = data.dislikeCount;
+
+                        if (data.hasLiked) {
+                            button.classList.add('active');
+                        } else {
+                            button.classList.remove('active');
+                        }
+                        if (data.hasDisliked) {
+                            dislikeBtn.classList.add('active');
+                        } else {
+                            dislikeBtn.classList.remove('active');
+                        }
+                    } catch (error) {
+                        console.error('Error liking post:', error);
+                        alert('Failed to like the post. Please try again.');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.dislike-btn').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const container = button.closest('.likes-dislikes');
+                    const postId = container.dataset.postId;
+                    const csrfToken = container.querySelector('.csrf-dislike').value;
+                    const dislikeCountSpan = button.querySelector('.dislike-count');
+                    const likeBtn = container.querySelector('.like-btn');
+                    const likeCountSpan = likeBtn.querySelector('.like-count');
+
+                    try {
+                        const response = await fetch(`/post/${postId}/dislike`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            body: new URLSearchParams({
+                                '_token': csrfToken,
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+
+                        const data = await response.json();
+                        likeCountSpan.textContent = data.likeCount;
+                        dislikeCountSpan.textContent = data.dislikeCount;
+
+                        if (data.hasDisliked) {
+                            button.classList.add('active');
+                        } else {
+                            button.classList.remove('active');
+                        }
+                        if (data.hasLiked) {
+                            likeBtn.classList.add('active');
+                        } else {
+                            likeBtn.classList.remove('active');
+                        }
+                    } catch (error) {
+                        console.error('Error disliking post:', error);
+                        alert('Failed to dislike the post. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

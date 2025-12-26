@@ -22,7 +22,7 @@ class ReclamationType extends AbstractType
         $builder
             ->add('description', TextareaType::class, [
                 'attr' => [
-                    'rows' => 5,
+                    'rows' => 5, 
                     'class' => 'modern-textarea',
                     'placeholder' => 'Décrivez votre problème en détail...',
                     'required' => 'required',
@@ -49,6 +49,37 @@ class ReclamationType extends AbstractType
                 'constraints' => [
                     new NotBlank(['message' => 'La catégorie ne peut pas être vide'])
                 ]
+            ])
+            ->add('imageFile', FileType::class, [
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2048k',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif'
+                        ],
+                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPEG, PNG, GIF)',
+                    ])
+                ],
+                'label' => 'Image (optionnel)'
+            ])
+            ->add('pdfFile', FileType::class, [
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5120k',
+                        'mimeTypes' => [
+                            'application/pdf',
+                            'application/x-pdf'
+                        ],
+                        'mimeTypesMessage' => 'Veuillez uploader un fichier PDF valide',
+                    ])
+                ],
+                'label' => 'Document PDF (optionnel)'
             ]);
 
         // Ajouter le champ statut uniquement en édition
@@ -78,4 +109,4 @@ class ReclamationType extends AbstractType
 
         $resolver->setAllowedTypes('is_edit', 'bool');
     }
-}
+} 

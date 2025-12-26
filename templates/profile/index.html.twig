@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/profile/styles.css" />
+    <style>
+      .section {
+        padding-top: 30px !important;
+      }
+
+      .section__container {
+        padding-top: 1rem;
+      }
+      
+      .image {
+        display: grid;
+        place-items: center;
+        padding-top: 2rem;
+      }
+
+      .image img {
+        width: min(25rem, 90%);
+        border-radius: 50%;
+        object-fit: cover;
+        aspect-ratio: 1;
+      }
+    </style>
+    <title>{{ user.prenom }} {{ user.nom }} | Profile</title>
+  </head>
+  <body>
+    {% include 'Navbar/navbar_login.html.twig' %}
+  
+    <section class="section">
+      <div class="section__container">
+        <div class="content">
+          <p class="subtitle">HELLO</p>
+          <h1 class="title">
+            I'm <span>{{ user.prenom }}<br />{{ user.nom }}</span>
+          </h1>
+          <p class="description">
+            Welcome to my profile! I'm {{ user.prenom }}, a {{ user.role }} on E-sportify.
+            This is my personal space where I showcase my achievements and activities.
+          </p>
+          <div class="action__btns">
+            <a href="{{ path('app_profile_settings') }}" style="text-decoration: none;">
+              <button class="portfolio">Modifier</button>
+            </a>
+          </div>
+        </div>
+        <div class="image">
+          <img src="{{ asset(user.photo ?? 'Sign_in/img/user.png') }}" alt="profile" />
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

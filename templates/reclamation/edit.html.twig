@@ -1,9 +1,251 @@
-<h1>Modifier la Réclamation #{{ reclamation.id }}</h1>
+{% extends 'reclamation/index.html.twig' %}
 
-{{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' } }) }}
-    {{ form_widget(form) }}
+{% block title %}Modifier la Réclamation{% endblock %}
 
-<button type="submit" class="btn btn-success">
-    Sauvegarder
-</button>
-{{ form_end(form) }}
+{% block body %}
+<style>body, .container, .content, .main-content { background: #fff !important; }</style>
+{% include 'Navbar/navbar_login.html.twig' %}
+
+<div class="container py-4">
+    
+
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle me-2"></i>
+        Les champs marqués d'un <span class="text-danger">*</span> sont obligatoires.
+    </div>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light" style="color: black;">
+                    <h2>Modifier la réclamation #{{ reclamation.id }}</h2>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'id': 'reclamation-form'}}) }}
+                        <div class="mb-3">
+                            {{ form_label(form.description, 'Description du problème <span class="text-danger">*</span>'|raw, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control' ~ (form.description.vars.valid ? '' : ' is-invalid'), 'rows': 5}}) }}
+                            <div class="invalid-feedback" id="description-error">
+                                {{ form_errors(form.description) }}
+                            </div>
+                            <small class="form-text text-muted">Décrivez clairement votre problème pour faciliter son traitement (minimum 10 caractères).</small>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.categorie, 'Catégorie <span class="text-danger">*</span>'|raw, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.categorie, {'attr': {'class': 'form-control' ~ (form.categorie.vars.valid ? '' : ' is-invalid')}}) }}
+                            <div class="invalid-feedback" id="categorie-error">
+                                {{ form_errors(form.categorie) }}
+                            </div>
+                            <small class="form-text text-muted">Catégoriser votre réclamation aide à l'orienter vers le bon service.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.statut, 'Statut', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.statut, {'attr': {'class': 'form-select'}}) }}
+                            {{ form_errors(form.statut) }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form_label(form.imageFile, 'Image (optionnel)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                    {{ form_widget(form.imageFile, {'attr': {'class': 'form-control' ~ (form.imageFile.vars.valid ? '' : ' is-invalid')}}) }}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(form.imageFile) }}
+                                    </div>
+                                    <small class="form-text text-muted">Formats acceptés : JPEG, PNG, GIF (max 2MB)</small>
+                                    
+                                    {% if reclamation.image_path %}
+                                        <div class="mt-2">
+                                            <p><strong>Image actuelle :</strong></p>
+                                            <img src="{{ asset('uploads/images/' ~ reclamation.image_path) }}" 
+                                                 class="img-thumbnail" style="max-height: 100px" alt="Image actuelle">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form_label(form.pdfFile, 'Document PDF (optionnel)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                    {{ form_widget(form.pdfFile, {'attr': {'class': 'form-control' ~ (form.pdfFile.vars.valid ? '' : ' is-invalid')}}) }}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(form.pdfFile) }}
+                                    </div>
+                                    <small class="form-text text-muted">Format accepté : PDF (max 5MB)</small>
+                                    
+                                    {% if reclamation.pdf_path %}
+                                        <div class="mt-2">
+                                            <p><strong>PDF actuel :</strong> {{ reclamation.pdf_path }}</p>
+                                            <a href="{{ asset('uploads/pdf/' ~ reclamation.pdf_path) }}" 
+                                               class="btn btn-sm btn-outline-danger" target="_blank">
+                                                <i class="fas fa-file-pdf me-1"></i> Voir le PDF
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submit-btn">
+                                <i class="fas fa-save me-1"></i> Enregistrer les modifications
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('reclamation-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const descriptionInput = document.querySelector('[name="reclamation[description]"]');
+            const categorieInput = document.querySelector('[name="reclamation[categorie]"]');
+            const descriptionError = document.getElementById('description-error');
+            const categorieError = document.getElementById('categorie-error');
+
+            // Fonction pour valider le formulaire côté client
+            function validateForm(event) {
+                let isValid = true;
+                
+                // Vérifier la description
+                if (!descriptionInput.value.trim()) {
+                    descriptionInput.classList.add('is-invalid');
+                    descriptionError.textContent = 'La description ne peut pas être vide';
+                    isValid = false;
+                } else if (descriptionInput.value.trim().length < 10) {
+                    descriptionInput.classList.add('is-invalid');
+                    descriptionError.textContent = 'La description doit contenir au moins 10 caractères';
+                    isValid = false;
+                } else {
+                    descriptionInput.classList.remove('is-invalid');
+                    descriptionInput.classList.add('is-valid');
+                }
+                
+                // Vérifier la catégorie
+                if (!categorieInput.value.trim()) {
+                    categorieInput.classList.add('is-invalid');
+                    categorieError.textContent = 'La catégorie ne peut pas être vide';
+                    isValid = false;
+                } else {
+                    categorieInput.classList.remove('is-invalid');
+                    categorieInput.classList.add('is-valid');
+                }
+                
+                // Si le formulaire n'est pas valide, empêcher la soumission
+                if (!isValid) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    // Afficher une alerte en haut du formulaire
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        <strong>Erreur !</strong> Veuillez corriger les champs marqués en rouge avant de soumettre le formulaire.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    form.insertBefore(alertDiv, form.firstChild);
+                    
+                    // Faire défiler jusqu'au premier champ invalide
+                    document.querySelector('.is-invalid').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+                
+                return isValid;
+            }
+            
+            // Validation à la soumission du formulaire
+            form.addEventListener('submit', validateForm);
+            
+            // Validation en temps réel pour la description
+            descriptionInput.addEventListener('input', function() {
+                if (this.value.trim().length === 0) {
+                    this.classList.add('is-invalid');
+                    descriptionError.textContent = 'La description ne peut pas être vide';
+                } else if (this.value.trim().length < 10) {
+                    this.classList.add('is-invalid');
+                    descriptionError.textContent = 'La description doit contenir au moins 10 caractères';
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                }
+            });
+            
+            // Validation en temps réel pour la catégorie
+            categorieInput.addEventListener('input', function() {
+                if (this.value.trim().length === 0) {
+                    this.classList.add('is-invalid');
+                    categorieError.textContent = 'La catégorie ne peut pas être vide';
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .is-invalid {
+            border-color: #dc3545 !important;
+            padding-right: calc(1.5em + 0.75rem) !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right calc(0.375em + 0.1875rem) center !important;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+        }
+        
+        .is-valid {
+            border-color: #198754 !important;
+            padding-right: calc(1.5em + 0.75rem) !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right calc(0.375em + 0.1875rem) center !important;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+        }
+        
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+        
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+        
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
+        .form-group {
+            position: relative;
+        }
+    </style>
+{% endblock %} 

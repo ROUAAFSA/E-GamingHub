@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container py-5">
+    <h2 class="mb-4" style="color:#2193b0;font-weight:bold;">Mon panier</h2>
+    {% if produits|length > 0 %}
+        <div class="table-responsive mb-4">
+            <table class="table align-middle bg-white rounded shadow-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Produit</th>
+                        <th>Prix unitaire</th>
+                        <th>Quantité</th>
+                        <th>Sous-total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produit in produits %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ produit.image ? asset(produit.image) : asset('images/default.png') }}" alt="{{ produit.nom }}" style="width:60px;height:60px;object-fit:contain;margin-right:1rem;">
+                                    <span>{{ produit.nom }}</span>
+                                </div>
+                            </td>
+                            <td>{{ produit.prix|number_format(2, '.', ' ') }} TND</td>
+                            <td>
+                                <form method="post" action="{{ path('modifier_quantite_panier', {'id': produit.id}) }}" class="d-flex align-items-center">
+                                    <input type="number" name="quantite" value="{{ panier[produit.id] }}" min="1" class="form-control form-control-sm me-2" style="width:70px;">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">OK</button>
+                                </form>
+                            </td>
+                            <td>{{ (produit.prix * panier[produit.id])|number_format(2, '.', ' ') }} TND</td>
+                            <td>
+                                <form method="post" action="{{ path('retirer_du_panier', {'id': produit.id}) }}" onsubmit="return confirm('Retirer ce produit du panier ?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Retirer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-end align-items-center">
+            <h4 class="me-4">Total : <span style="color:#2193b0;">{{ total|number_format(2, '.', ' ') }} TND</span></h4>
+            <button type="button" class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#paiementModal">Valider la commande</button>
+        </div>
+
+        <!-- Modal Choix Paiement -->
+        <div class="modal fade" id="paiementModal" tabindex="-1" aria-labelledby="paiementModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="paiementModalLabel">Choisissez votre mode de paiement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+              </div>
+              <div class="modal-body text-center">
+                <form id="paiementForm" method="post">
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="paiement" id="paiementCash" value="cash" checked>
+                    <label class="form-check-label" for="paiementCash">Paiement en espèces à la livraison</label>
+                  </div>
+                  <div class="form-check mb-4">
+                    <input class="form-check-input" type="radio" name="paiement" id="paiementStripe" value="stripe">
+                    <label class="form-check-label" for="paiementStripe">Paiement en ligne par carte (Stripe)</label>
+                  </div>
+                  <button type="submit" class="btn btn-primary w-100">Continuer</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const paiementForm = document.getElementById('paiementForm');
+            paiementForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const mode = document.querySelector('input[name="paiement"]:checked').value;
+                if (mode === 'cash') {
+                    paiementForm.action = "{{ path('valider_commande') }}";
+                    paiementForm.method = 'post';
+                    paiementForm.submit();
+                } else if (mode === 'stripe') {
+                    window.location.href = "{{ path('paiement_stripe') }}";
+                }
+            });
+        });
+        </script>
+    {% else %}
+        <div class="alert alert-info text-center">Votre panier est vide.</div>
+    {% endif %}
+</div>
+{% endblock %} 

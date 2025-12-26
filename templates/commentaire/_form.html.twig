@@ -1,0 +1,259 @@
+{% extends 'basee.html.twig' %}
+
+{% block title %}New Commentaire{% endblock %}
+
+{% block body %}
+    <style>
+        body {
+            background-color: #121212;
+            font-family: 'Poppins', sans-serif;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #1e1e2f;
+            border: 2px solid white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.05);
+        }
+
+        h4 {
+            color: #b388ff;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #cccccc;
+        }
+
+        .form-control, .form-select {
+            background-color: #2a2a3b;
+            border: 1px solid #444;
+            color: #ffffff;
+            border-radius: 8px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #2a2a3b;
+            border-color: #b388ff;
+            box-shadow: 0 0 5px rgba(179, 136, 255, 0.5);
+            color: #ffffff;
+        }
+
+        .form-select:disabled {
+            background-color: #333;
+            color: #888;
+        }
+
+        .text-muted {
+            font-size: 0.85rem;
+            color: #aaaaaa;
+        }
+
+        .btn-success {
+            background-color: #81c784;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-success:hover {
+            background-color: #66bb6a;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .alert-danger {
+            background-color: #ff6b6b;
+            color: #fff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn i {
+            transition: transform 0.2s ease;
+        }
+        .btn:hover i {
+            transform: scale(1.2);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #1e1e2f;
+            border: 2px solid #b388ff;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .modal-content h5 {
+            color: #ff6b6b;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content p {
+            color: #ffffff;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <div class="container">
+        <h4>Ajouter un Commentaire</h4>
+
+        <!-- Global Form Errors -->
+        {% if form_errors(form) %}
+            <div class="alert alert-danger">
+                <strong>Veuillez corriger les erreurs ci-dessous :</strong>
+                {{ form_errors(form) }}
+            </div>
+        {% endif %}
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+        <!-- Contenu -->
+        <div class="mb-3">
+            <label class="form-label">💬 Contenu du Commentaire</label>
+            {{ form_widget(form.contenu, {'attr': {'class': 'form-control', 'rows': '5'}}) }}
+            <div class="text-muted small">Entrez le contenu du commentaire.</div>
+        </div>
+
+        <!-- Auteur -->
+        <div class="mb-3">
+            <label class="form-label">👤 Auteur</label>
+            {{ form_widget(form.auteur, {'attr': {'class': 'form-control'}}) }}
+            <div class="text-muted small">Entrez le nom de l'auteur.</div>
+        </div>
+
+        <!-- Post Associé -->
+        <div class="mb-3">
+            <label class="form-label">📜 Post Associé</label>
+            {{ form_widget(form.post, {'attr': {'class': 'form-select'}}) }}
+            <div class="text-muted small">Le post associé est {{ post.titre|default('sélectionné') }}.</div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-end">
+            <button type="submit" class="btn btn-success me-2">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+            <a href="{{ path('app_post_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+
+    <!-- Modal HTML -->
+    <div class="modal" id="errorModal">
+        <div class="modal-content">
+            <h5 id="modalTitle">Erreur</h5>
+            <p id="modalMessage"></p>
+        </div>
+    </div>
+
+    <!-- JavaScript Validation -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const badWords = ['idiot', 'stupid', 'jerk', 'damn', 'hell', 'merde', 'con', 'salope', 'putain', 'connard'];
+            const modal = document.getElementById('errorModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+
+            function showModal(title, message) {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                modal.style.display = 'flex';
+                // Automatically close modal after 4 seconds
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 4000);
+            }
+
+            document.querySelector("form").addEventListener("submit", function (event) {
+                let errors = [];
+                let contenu = document.querySelector("[name='commentaire[contenu]']");
+                let auteur = document.querySelector("[name='commentaire[auteur]']");
+
+                // Check if contenu is empty
+                if (!contenu.value.trim()) {
+                    errors.push("Le contenu du commentaire est obligatoire.");
+                } else {
+                    // Check for bad words
+                    let contenuLower = contenu.value.toLowerCase();
+                    for (let badWord of badWords) {
+                        if (contenuLower.includes(badWord)) {
+                            event.preventDefault();
+                            showModal("Mots Inappropriés", "⚠️ Votre commentaire contient des mots inappropriés. L'administrateur examinera ce commentaire, et vous risquez d'être banni.");
+                            return;
+                        }
+                    }
+                }
+
+                // Check if auteur is empty
+                if (!auteur.value.trim()) {
+                    errors.push("Le nom de l'auteur est obligatoire.");
+                }
+
+                if (errors.length > 0) {
+                    event.preventDefault();
+                    showModal("Erreurs Détectées", "🚨 " + errors.join("\n"));
+                }
+            });
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+{% endblock %}

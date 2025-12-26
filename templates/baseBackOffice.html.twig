@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>{% block title %}Back Office{% endblock %}</title>
+
+  <link rel="icon" href="{{ asset('backOffice/img/mini_logo.png') }}" type="image/png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="{{ asset('backOffice/css/bootstrap1.min.css') }}" />
+  <!-- themefy CSS -->
+  <link rel="stylesheet" href="{{ asset('backOffice/vendors/themefy_icon/themify-icons.css') }}" />
+  <!-- select2 CSS -->
+  <link rel="stylesheet" href="{{ asset('backOffice/vendors/niceselect/css/nice-select.css') }}" />
+  <!-- owl carousel CSS -->
+  <link rel="stylesheet" href="{{ asset('backOffice/vendors/owl_carousel/css/owl.carousel.css') }}" />
+  <!-- font awesome CSS -->
+  <link rel="stylesheet" href="{{ asset('backOffice/vendors/font_awesome/css/all.min.css') }}" />
+  <!-- datatable CSS -->
+  <link rel="stylesheet" href="{{ asset('backOffice/vendors/datatable/css/jquery.dataTables.min.css') }}" />
+  <link rel="stylesheet" href="{{ asset('backOffice/vendors/datatable/css/responsive.dataTables.min.css') }}" />
+  <!-- menu css -->
+  <link rel="stylesheet" href="{{ asset('backOffice/css/metisMenu.css') }}">
+  <!-- style CSS -->
+  <link rel="stylesheet" href="{{ asset('backOffice/css/style1.css') }}" />
+  <link rel="stylesheet" href="{{ asset('backOffice/css/colors/default.css') }}" id="colorSkinCSS">
+  <link rel="stylesheet" href="{{ asset('backOffice/vendors/themefy_icon/themify-icons.css') }}">
+
+  <style>
+    .light_sidebar {
+      background: #ffffff !important;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .light_sidebar .logo {
+      border-bottom: 1px solid #e7e7e7;
+    }
+    .light_sidebar .sidebar_close_icon i {
+      color: #333;
+    }
+    .header_right {
+      padding-right: 1.5rem; /* Add some padding to the right */
+    }
+
+    .btn-logout {
+      background-color: #dc3545 !important; /* Red background */
+      border-color: #dc3545 !important;
+      color: white !important;
+      font-weight: 500;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn-logout:hover {
+      background-color: #c82333 !important; /* Darker red on hover */
+      border-color: #bd2130 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Sidebar menu styling */
+    .sidebar-menu {
+      padding: 1rem 0;
+    }
+    .sidebar-menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar-menu ul li {
+      padding: 0.5rem 1rem;
+    }
+    .sidebar-menu ul li a {
+      display: flex;
+      align-items: center;
+      color: #333;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: color 0.3s ease, background-color 0.3s ease;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+    }
+    .sidebar-menu ul li a i {
+      margin-right: 0.75rem;
+      font-size: 1.2rem;
+    }
+    .sidebar-menu ul li a:hover {
+      background-color: #f8f9fa;
+      color: #007bff;
+    }
+    .sidebar-menu ul li a.active {
+      background-color: #e9ecef;
+      color: #007bff;
+      font-weight: 600;
+    }
+  </style>
+
+  {% block stylesheets %}{% endblock %}
+</head>
+
+<body class="crm_body_bg">
+<!-- main content part here -->
+
+
+
+<section class="main_content dashboard_part large_header_bg">
+
+  <div class="main_content_iner overly_inner ">
+    <div class="container-fluid p-0 ">
+      {% block breadcrumb %}
+        <!-- page title  -->
+        <div class="row">
+          <div class="col-12">
+            <div class="page_title_box d-flex flex-wrap align-items-center justify-content-between">
+              <div class="page_title_left">
+                <h3 class="mb-0">{% block page_title %}Dashboard{% endblock %}</h3>
+                <p>{% block page_subtitle %}Tableau de bord{% endblock %}</p>
+              </div>
+              {% block page_actions %}{% endblock %}
+            </div>
+          </div>
+        </div>
+      {% endblock %}
+
+      <!-- Dynamic content block -->
+      <div class="row">
+        <div class="col-12">
+          {% block content %}
+
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ### CHAT_MESSAGE_BOX   ### -->
+<div class="CHAT_MESSAGE_POPUPBOX">
+  <div class="CHAT_POPUP_HEADER">
+    <div class="MSEESAGE_CHATBOX_CLOSE">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.09939 5.98831L11.772 10.661C12.076 10.965 12.076 11.4564 11.772 11.7603C11.468 12.0643 10.9766 12.0643 10.6726 11.7603L5.99994 7.08762L1.32737 11.7603C1.02329 12.0643 0.532002 12.0643 0.228062 11.7603C-0.0760207 11.4564 -0.0760207 10.965 0.228062 10.661L4.90063 5.98831L0.228062 1.3156C-0.0760207 1.01166 -0.0760207 0.520226 0.228062 0.216286C0.379534 0.0646715 0.578697 -0.0114918 0.777717 -0.0114918C0.976738 -0.0114918 1.17576 0.0646715 1.32737 0.216286L5.99994 4.889L10.6726 0.216286C10.8243 0.0646715 11.0233 -0.0114918 11.2223 -0.0114918C11.4213 -0.0114918 11.6203 0.0646715 11.772 0.216286C12.076 0.520226 12.076 1.01166 11.772 1.3156L7.09939 5.98831Z" fill="white"/>
+      </svg>
+    </div>
+    <h3>Chat avec nous</h3>
+  </div>
+  <div class="CHAT_POPUP_BODY">
+    <div class="CHATING_SENDER">
+      <div class="SMS_thumb">
+        <img src="{{ asset('backOffice/img/staf/1.png') }}" alt="">
+      </div>
+      <div class="SEND_SMS_VIEW">
+        <P>Bonjour ! Comment pouvons-nous vous aider ?</P>
+      </div>
+    </div>
+  </div>
+  <div class="CHAT_POPUP_BOTTOM">
+    <div class="chat_input_box d-flex align-items-center">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Écrivez votre message" aria-label="Message">
+        <div class="input-group-append">
+          <button class="btn" type="button">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 0.289062C4.92455 0.289062 0 5.08402 0 10.9996C0 16.9152 4.92455 21.7101 11 21.7101C17.0755 21.7101 22 16.9145 22 10.9996C22 5.08472 17.0755 0.289062 11 0.289062ZM11 20.3713C5.68423 20.3713 1.375 16.1755 1.375 10.9996C1.375 5.82371 5.68423 1.62788 11 1.62788C16.3158 1.62788 20.625 5.82371 20.625 10.9996C20.625 16.1755 16.3158 20.3713 11 20.3713ZM15.125 10.3302H11.6875V6.98314C11.6875 6.61363 11.3795 6.31373 11 6.31373C10.6205 6.31373 10.3125 6.61363 10.3125 6.98314V10.3302H6.875C6.4955 10.3302 6.1875 10.6301 6.1875 10.9996C6.1875 11.3691 6.4955 11.669 6.875 11.669H10.3125V15.016C10.3125 15.3855 10.6205 15.6854 11 15.6854C11.3795 15.6854 11.6875 15.3855 11.6875 15.016V11.669H15.125C15.5045 11.669 15.8125 11.3691 15.8125 10.9996C15.8125 10.6301 15.5045 10.3302 15.125 10.3302Z" fill="#707DB7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--/### CHAT_MESSAGE_BOX  ### -->
+
+<div id="back-top" style="display: none;">
+  <a title="Go to Top" href="#">
+    <i class="ti-angle-up"></i>
+  </a>
+</div>
+
+<!-- footer  -->
+<script src="{{ asset('backOffice/js/jquery1-3.4.1.min.js') }}"></script>
+<!-- popper js -->
+<script src="{{ asset('backOffice/js/popper1.min.js') }}"></script>
+<!-- bootstarp js -->
+<script src="{{ asset('backOffice/js/bootstrap1.min.js') }}"></script>
+<!-- sidebar menu  -->
+<script src="{{ asset('backOffice/js/metisMenu.js') }}"></script>
+<!-- nice select -->
+<script src="{{ asset('backOffice/vendors/niceselect/js/jquery.nice-select.min.js') }}"></script>
+<!-- owl carousel -->
+<script src="{{ asset('backOffice/vendors/owl_carousel/js/owl.carousel.min.js') }}"></script>
+<!-- responsive table -->
+<script src="{{ asset('backOffice/vendors/datatable/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('backOffice/vendors/datatable/js/dataTables.responsive.min.js') }}"></script>
+<!-- custom js -->
+<script src="{{ asset('backOffice/js/custom.js') }}"></script>
+
+{% block javascripts %}{% endblock %}
+</body>
+</html>

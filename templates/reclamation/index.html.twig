@@ -1,37 +1,446 @@
-<h1>Liste des Réclamations</h1>
+{% extends 'basee.html.twig' %}
 
-<table border="1" cellpadding="8" cellspacing="0" style="margin-top:20px; border-collapse: collapse;">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Description</th>
-        <th>Statut</th>
-        <th>Catégorie</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
+{% block title %}
+    {% if is_admin %}
+        {% if app.request.query.get('archived') %}
+            Archives des Réclamations
+        {% else %}
+            Liste des Réclamations (Administration)
+        {% endif %}
+    {% else %}
+        Mes Réclamations
+    {% endif %}
+{% endblock %}
 
-    <tbody>
-    {% for reclamation in reclamations %}
-        <tr>
-            <td>{{ reclamation.id }}</td>
-            <td>{{ reclamation.description }}</td>
-            <td>{{ reclamation.statut }}</td>
-            <td>{{ reclamation.categorie }}</td>
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    body { background: linear-gradient(120deg, #2193b0 0%, #6dd5ed 100%) !important; }
+    .card {
+        background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(45, 171, 202, 0.27);
+        color: #fff;
+    }
+    .card .card-body h3, .card .card-body p { color: #fff; }
+    .card-header { background: transparent; border: none; }
+    .table-responsive { border-radius: 18px; overflow: hidden; box-shadow: 0 2px 12px rgba(33,147,176,0.08); }
+    .table {
+        background: #fff;
+        color: #222;
+        border-radius: 18px;
+        overflow: hidden;
+        margin-bottom: 0;
+    }
+    .table thead {
+        background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+        color: #fff;
+        font-weight: 600;
+    }
+    .table th, .table td { vertical-align: middle; }
+    .table tbody tr:hover { background: #f3f9fb; }
+    .status-badge {
+        display: inline-block;
+        padding: 0.35em 1.1em;
+        border-radius: 18px;
+        font-size: 0.95em;
+        font-weight: 600;
+        color: #fff;
+        background: #2193b0;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(33,147,176,0.07);
+    }
+    .status-badge.en-attente { background: #ffb347; }
+    .status-badge.résolue { background: #43cea2; }
+    .status-badge.archivée { background: #b0b0b0; }
+    .btn, .btn-outline-primary, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-success {
+        border-radius: 22px !important;
+        font-weight: 600;
+        padding: 0.4em 1.3em;
+        box-shadow: 0 2px 8px rgba(33,147,176,0.07);
+        border: none;
+        color: #fff !important;
+        background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover, .btn-outline-primary:hover, .btn-outline-info:hover, .btn-outline-warning:hover, .btn-outline-danger:hover, .btn-outline-success:hover {
+        background: linear-gradient(90deg, #6dd5ed 0%, #2193b0 100%);
+        color: #fff !important;
+        box-shadow: 0 4px 16px rgba(33,147,176,0.13);
+    }
+    .btn-group .btn { margin-right: 0.4em; }
+    .btn-group .btn:last-child { margin-right: 0; }
+    .search-container { margin-bottom: 20px; }
+    .search-input {
+        color: #000000 !important; /* Texte en noir */
+        width: 100%;
+        padding: 10px 15px 10px 40px;
+        border-radius: 22px;
+        border: 1px rgb(0, 2, 2);
+        background:rgb(0, 2, 2);
+        color: #222;
+        font-size: 1em;
+        transition: border 0.2s;
+    }
+    .search-input:focus { border: 1.5px solid #2193b0; outline: none; background: #fff;  color: #000000 !important; /* Texte en noir */}
+    .search-icon { left: 15px; color: #2193b0; }
+    .no-results {
+        text-align: center;
+        padding: 20px;
+        color: #2193b0;
+        background:rgb(1, 12, 16);
+        border-radius: 12px;
+    }
 
-            <td>
-                <a href="{{ path('app_reclamation_edit', { id: reclamation.id }) }}">
-                    Modifier
+    .card {
+        background-color: rgba(26, 13, 33, 0.9) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .table {
+        color: #fff;
+    }
+    body {
+        background-color: #1A0D21;
+    }
+    .btn-outline-primary {
+        color: #fff;
+        border-color: var(--text-purple);
+    }
+    .btn-outline-primary:hover {
+        background-color: var(--text-purple);
+        border-color: var(--text-purple);
+    }
+    .search-container {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    .search-input {
+        color: #000000 !important; /* Texte en noir */
+        width: 100%;
+        padding: 10px 15px;
+        padding-left: 40px;
+        background-color: rgb(255, 255, 255);
+        border: 1px solid rgba(123, 163, 227, 0.99);
+        border-radius: 5px;
+        color: #fff;
+        transition: all 0.3s ease;
+    }
+    .search-input:focus {
+        color: #000000 !important; /* Texte en noir */
+        background-color: rgb(255, 255, 255);
+        border-color: var(--text-purple);
+        box-shadow: 0 0 0 0.2rem rgba(var(--text-purple-rgb), 0.25);
+        outline: none;
+    }
+    .search-input::placeholder {
+        color: rgba(13, 0, 0, 0.93);
+    }
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(14, 0, 0, 0);
+    }
+    .no-results {
+        text-align: center;
+        padding: 20px;
+        color: #fff;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        margin-top: 20px;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<style>body, .container, .content, .main-content { background: #fff !important; }</style>
+{% include 'Navbar/navbar_login.html.twig' %}
+
+<div class="container py-4" style="background-color: #1A0D21;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 title text-white">
+                <span style="color: var(--text-purple);">
+                    {% if app.request.query.get('archived') %}
+                        RÉCLAMATIONS ARCHIVÉES
+                    {% else %}
+                        MES RÉCLAMATIONS
+                    {% endif %}
+                </span>
+            </h1>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> NOUVELLE RÉCLAMATION
+            </a>
+            {% if app.request.query.get('archived') %}
+                <a href="{{ path('app_reclamation_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-list"></i> RÉCLAMATIONS ACTIVES
                 </a>
+            {% else %}
+                <a href="{{ path('app_reclamation_index', {'archived': 'true'}) }}" class="btn btn-secondary">
+                    <i class="fas fa-archive"></i> VOIR LES ARCHIVES
+                </a>
+            {% endif %}
+        </div>
+    </div>
 
-                <form method="post"
-                      action="{{ path('app_reclamation_delete', { id: reclamation.id }) }}"
-                      style="display:inline-block;"
-                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?');">
-                    <button type="submit">Supprimer</button>
-                </form>
-            </td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+    <!-- Barre de recherche -->
+    <div class="search-container mb-4">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchInput" class="search-input" placeholder="Rechercher une réclamation...">
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="h4 mb-2">{{ stats.total }}</h3>
+                    <p class="mb-0">Réclamations totales</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="h4 mb-2">{{ stats.enAttente }}</h3>
+                    <p class="mb-0">En attente</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="h4 mb-2">{{ stats.resolues }}</h3>
+                    <p class="mb-0">Résolues</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table des réclamations -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="h5 mb-0">
+                <i class="fas fa-list-alt me-2"></i>
+                {% if app.request.query.get('archived') %}
+                    RÉCLAMATIONS ARCHIVÉES
+                {% else %}
+                    RÉCLAMATIONS ACTIVES
+                {% endif %}
+            </h2>
+        </div>
+        <div class="card-body">
+            {% if reclamations|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover" id="reclamationsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                {% if is_admin %}
+                                    <th>Utilisateur</th>
+                                {% endif %}
+                                <th>Description</th>
+                                <th>Statut</th>
+                                <th>Date de création</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reclamation in reclamations %}
+                                <tr class="reclamation-row">
+                                    <td>{{ reclamation.id }}</td>
+                                    {% if is_admin %}
+                                        <td>{{ reclamation.utilisateurId }}</td>
+                                    {% endif %}
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {{ reclamation.description|slice(0, 50) ~ (reclamation.description|length > 50 ? '...' : '') }}
+                                            <button class="btn btn-sm btn-link translate-btn ms-2" data-text="{{ reclamation.description }}" data-target-lang="en">
+                                                <i class="fas fa-language" title="Traduire"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge {{ reclamation.statut|lower|replace({' ': '-'}) }}">
+                                            {{ reclamation.statut }}
+                                        </span>
+                                    </td>
+                                    <td>{{ reclamation.date_creation ? reclamation.date_creation|date('d/m/Y H:i') : '' }}</td>
+                                    <td class="text-center">
+                                        <div class="btn-group">
+                                            <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" class="btn btn-sm btn-info" title="Voir">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if not reclamation.archived %}
+                                                <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" class="btn btn-sm btn-warning" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form method="post" action="{{ path('app_reclamation_archive', {'id': reclamation.id}) }}" style="display: inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('archive' ~ reclamation.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-secondary" title="Archiver" onclick="return confirm('Êtes-vous sûr de vouloir archiver cette réclamation ?');">
+                                                        <i class="fas fa-archive"></i>
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" style="display: inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ? Cette action est irréversible.');">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <form method="post" action="{{ path('app_reclamation_unarchive', {'id': reclamation.id}) }}" style="display: inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('unarchive' ~ reclamation.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-success" title="Restaurer" onclick="return confirm('Êtes-vous sûr de vouloir restaurer cette réclamation ?');">
+                                                        <i class="fas fa-box-open"></i>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-clipboard fa-3x mb-3"></i>
+                    <h3 class="h4">Aucune réclamation trouvée</h3>
+                    <p>Commencez par créer votre première réclamation</p>
+                    <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary mt-3">
+                        <i class="fas fa-plus-circle me-2"></i> Nouvelle Réclamation
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Forms for actions -->
+    <form id="archiveForm" method="post" style="display: none;"></form>
+    <form id="unarchiveForm" method="post" style="display: none;"></form>
+    <form id="deleteForm" method="post" style="display: none;"></form>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des boutons d'archive
+    document.querySelectorAll('.archive-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Êtes-vous sûr de vouloir archiver cette réclamation ?')) {
+                const form = document.getElementById('archiveForm');
+                form.action = "{{ path('app_reclamation_archive', {'id': 'ID'}) }}".replace('ID', this.dataset.id);
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = '_token';
+                input.value = this.dataset.token;
+                form.innerHTML = '';
+                form.appendChild(input);
+                form.submit();
+            }
+        });
+    });
+
+    // Gestion des boutons de désarchivage
+    document.querySelectorAll('.unarchive-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Êtes-vous sûr de vouloir restaurer cette réclamation ?')) {
+                const form = document.getElementById('unarchiveForm');
+                form.action = "{{ path('app_reclamation_unarchive', {'id': 'ID'}) }}".replace('ID', this.dataset.id);
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = '_token';
+                input.value = this.dataset.token;
+                form.innerHTML = '';
+                form.appendChild(input);
+                form.submit();
+            }
+        });
+    });
+
+    // Gestion des boutons de suppression
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Attention : Cette action est irréversible. Êtes-vous sûr de vouloir supprimer définitivement cette réclamation ?')) {
+                const form = document.getElementById('deleteForm');
+                form.action = "{{ path('app_reclamation_delete', {'id': 'ID'}) }}".replace('ID', this.dataset.id);
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = '_token';
+                input.value = this.dataset.token;
+                form.innerHTML = '';
+                form.appendChild(input);
+                form.submit();
+            }
+        });
+    });
+
+    // Fonction de traduction
+    async function translateText(text, targetLang) {
+        const sourceLang = targetLang === 'en' ? 'fr' : 'en';
+        try {
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`);
+            const data = await response.json();
+            if (data.responseStatus === 200 && data.responseData.translatedText) {
+                return data.responseData.translatedText;
+            } else {
+                throw new Error(data.responseDetails || 'Erreur de traduction');
+            }
+        } catch (error) {
+            console.error('Erreur de traduction:', error);
+            throw error;
+        }
+    }
+
+    // Gestion des boutons de traduction
+    document.querySelectorAll('.translate-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const textElement = this.closest('div').firstChild;
+            const originalText = this.dataset.text;
+            const targetLang = this.dataset.targetLang;
+            
+            try {
+                const translatedText = await translateText(originalText, targetLang);
+                textElement.textContent = translatedText;
+                this.dataset.targetLang = targetLang === 'en' ? 'fr' : 'en';
+                this.title = targetLang === 'en' ? 'Traduire en français' : 'Translate to English';
+            } catch (error) {
+                alert('Erreur lors de la traduction : ' + error.message);
+            }
+        });
+    });
+
+    // Gestion de la recherche
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.reclamation-row');
+            let hasResults = false;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    hasResults = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            const noResults = document.querySelector('.no-results');
+            if (noResults) {
+                noResults.style.display = hasResults ? 'none' : 'block';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

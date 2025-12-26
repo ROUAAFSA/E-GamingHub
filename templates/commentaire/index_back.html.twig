@@ -1,0 +1,760 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Commentaires{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
+    <style>
+        /* Layout principal */
+        .main-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Styles pour la sidebar */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--light);
+            z-index: 2000;
+            font-family: var(--lato);
+            transition: .3s ease;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        #sidebar .brand {
+            font-size: 24px;
+            font-weight: 700;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+        }
+
+        #sidebar .brand img {
+            width: 180px;
+            height: auto;
+            margin-left: 10px;
+        }
+
+        #sidebar .side-menu {
+            width: 100%;
+            margin-top: 48px;
+        }
+
+        #sidebar .side-menu li {
+            height: 48px;
+            background: transparent;
+            margin-left: 6px;
+            border-radius: 48px 0 0 48px;
+            padding: 4px;
+        }
+
+        #sidebar .side-menu li.active {
+            background: var(--grey);
+            position: relative;
+        }
+
+        #sidebar .side-menu li.active::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            top: -40px;
+            right: 0;
+            box-shadow: 20px 20px 0 var(--grey);
+            z-index: -1;
+        }
+
+        #sidebar .side-menu li.active::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            bottom: -40px;
+            right: 0;
+            box-shadow: 20px -20px 0 var(--grey);
+            z-index: -1;
+        }
+
+        #sidebar .side-menu li a {
+            width: 100%;
+            height: 100%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            border-radius: 48px;
+            font-size: 16px;
+            color: var(--dark);
+            white-space: nowrap;
+            overflow-x: hidden;
+            padding: 0 12px;
+        }
+
+        #sidebar .side-menu li.active a {
+            color: var(--success);
+        }
+
+        #sidebar .side-menu.top li a:hover {
+            color: var(--success);
+        }
+
+        #sidebar .side-menu li a .bx {
+            min-width: calc(60px - ((4px + 6px) * 2));
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Styles pour le contenu principal */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        /* Vos styles existants */
+        .comment-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .comment-header {
+            background: #fff;
+            border-radius: 18px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+        }
+
+        .comment-header h1 {
+            color: #2193b0;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.8rem 2.5rem;
+            border: 2px solid #e1e1e1;
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #2193b0;
+            box-shadow: 0 0 0 3px rgba(33,147,176,0.1);
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #2193b0;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-clear:hover {
+            color: #e63946;
+        }
+
+        .filter-options {
+            margin-top: 1rem;
+        }
+
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .custom-checkbox input {
+            display: none;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #2193b0;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .custom-checkbox input:checked ~ .checkmark {
+            background: #2193b0;
+        }
+
+        .checkmark:after {
+            content: '';
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .custom-checkbox input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .badge-success {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+        }
+
+        .badge-warning {
+            background: linear-gradient(90deg, #f9c74f 0%, #f8961e 100%);
+            color: white;
+        }
+
+        .badge i {
+            font-size: 0.9rem;
+        }
+
+        .action-buttons .btn {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(33,147,176,0.2);
+        }
+
+        .comments-list-container {
+            margin-top: 2rem;
+        }
+
+        .comment-card {
+            background: white;
+            border-radius: 18px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+            transition: all 0.3s ease;
+        }
+
+        .comment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.12);
+        }
+
+        .comment-metadata {
+            padding: 1.25rem;
+            background: linear-gradient(to right, #f8f9fa, white);
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+        .comment-content {
+            padding: 1.5rem;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .comment-actions {
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .comment-actions .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(90deg, #e63946 0%, #ff758f 100%);
+            color: white;
+        }
+
+        .comment-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #2193b0;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .stats-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .comment-actions {
+                flex-direction: column;
+            }
+
+            .comment-actions .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="main-layout">
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <img src="{{ asset('navbar/img/E-SPORTIFY.png') }}" alt="E-SPORTIFY">
+        </a>
+        <ul class="side-menu top">
+            <li>
+                <a href="#">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-shopping-bag-alt'></i>
+                    <span class="text">My Store</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-doughnut-chart'></i>
+                    <span class="text">Analytics</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="{{ path('app_admin_dashboard') }}">
+                    <i class='bx bxs-message-dots'></i>
+                    <span class="text">Message</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_post_indexback')}}">
+                    <i class='bx bxs-group'></i>
+                    <span class="text">Actualité</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_salle_index') }}">
+                    <i class='bx bxs-door-open'></i>
+                    <span class="text">Gestion des Salles</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_reservation_salle_index') }}">
+                    <i class='bx bxs-calendar'></i>
+                    <span class="text">Réservations Salles</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="side-menu">
+            <li>
+                <a href="#">
+                    <i class='bx bxs-cog'></i>
+                    <span class="text">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ path('app_logout') }}" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="comment-container">
+            <div class="comment-header">
+                <h1>Gestion des Commentaires</h1>
+                <div class="search-box">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Rechercher un commentaire..." id="searchInput">
+                        <span class="search-clear" id="clearSearch">&times;</span>
+                    </div>
+                    <div class="filter-options">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="signaledFilter">
+                            <span class="checkmark"></span>
+                            <span>Afficher uniquement les commentaires signalés</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="stats-container">
+                    <div class="stats-badges">
+                        <div class="badge badge-success">
+                            <i class="fas fa-comments"></i>
+                            <span>Total: {{ commentaires|length }}</span>
+                        </div>
+                        <div class="badge badge-warning">
+                            <i class="fas fa-flag"></i>
+                            <span>Signalés: {{ commentaires|filter(c => c.signaled)|length }}</span>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Rafraîchir</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="commentsList" class="comments-list-container">
+                {% include 'commentaire/_comments_list.html.twig' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block existing_styles %}
+    .comment-header h1 {
+        color: #2193b0;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+    /* Le reste de vos styles existants... */
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const clearSearch = document.getElementById('clearSearch');
+            const signaledFilter = document.getElementById('signaledFilter');
+            const commentsList = document.getElementById('commentsList');
+            const totalCount = document.getElementById('totalCount');
+            const signaledCount = document.getElementById('signaledCount');
+            const refreshBtn = document.getElementById('refreshBtn');
+
+            // Add loading indicator to the DOM
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'loading-indicator';
+            loadingIndicator.innerHTML = `
+                <div class="loading-spinner"></div>
+                <p>Chargement en cours...</p>
+            `;
+            commentsList.appendChild(loadingIndicator);
+
+            function showLoading() {
+                loadingIndicator.style.display = 'block';
+                commentsList.querySelectorAll('.comment-card, .empty-state, .pagination').forEach(el => {
+                    el.style.opacity = '0.3';
+                });
+            }
+
+            function hideLoading() {
+                loadingIndicator.style.display = 'none';
+                commentsList.querySelectorAll('.comment-card, .empty-state, .pagination').forEach(el => {
+                    el.style.opacity = '1';
+                });
+            }
+
+            function fetchComments(search = '', signaled = null) {
+                showLoading();
+
+                const url = new URL('{{ path('app_commentaire_search') }}', window.location.origin);
+                url.searchParams.append('search', search);
+                if (signaled !== null) {
+                    url.searchParams.append('signaled', signaled);
+                }
+
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.text())
+                    .then(html => {
+                        // Add animation class to fade out the content
+                        commentsList.style.opacity = '0';
+
+                        setTimeout(() => {
+                            commentsList.innerHTML = html;
+                            hideLoading();
+
+                            // Re-append the loading indicator after updating the content
+                            commentsList.appendChild(loadingIndicator);
+
+                            // Update badges
+                            const commentCards = commentsList.querySelectorAll('.comment-card');
+                            const signaledComments = Array.from(commentCards).filter(card =>
+                                card.querySelector('.badge').textContent.includes('Signalé')
+                            );
+
+                            // Animate the counters
+                            animateCounter(totalCount.querySelector('span'), commentCards.length);
+                            animateCounter(signaledCount.querySelector('span'), signaledComments.length);
+
+                            // Fade in the new content
+                            commentsList.style.opacity = '1';
+
+                            // Add staggered animation to comment cards
+                            commentsList.querySelectorAll('.comment-card').forEach((card, index) => {
+                                card.style.animationDelay = `${0.1 * (index + 1)}s`;
+                            });
+                        }, 300);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching comments:', error);
+                        commentsList.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <h3>Erreur</h3>
+                                <p>Une erreur s'est produite lors de la recherche.</p>
+                            </div>
+                        `;
+                        hideLoading();
+                    });
+            }
+
+            // Function to animate counter
+            function animateCounter(element, target) {
+                const text = element.textContent;
+                const prefix = text.split(':')[0] + ': ';
+                const start = parseInt(text.split(':')[1].trim()) || 0;
+                const duration = 800;
+                const step = Math.ceil((target - start) / 20);
+
+                let current = start;
+                const timer = setInterval(() => {
+                    current = current + step;
+                    if ((step > 0 && current >= target) || (step < 0 && current <= target)) {
+                        clearInterval(timer);
+                        element.textContent = `${prefix}${target}`;
+                    } else {
+                        element.textContent = `${prefix}${current}`;
+                    }
+                }, duration / 20);
+            }
+
+            // Debounce function to limit how often the search is triggered
+            function debounce(func, wait) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
+            // Event listener for search input
+            const debouncedFetchComments = debounce((search, signaled) => {
+                fetchComments(search, signaled);
+            }, 300);
+
+            searchInput.addEventListener('input', () => {
+                const search = searchInput.value.trim();
+                const signaled = signaledFilter.checked ? true : null;
+
+                // Show/hide clear button based on input
+                clearSearch.style.display = search ? 'block' : 'none';
+
+                debouncedFetchComments(search, signaled);
+            });
+
+            // Clear search button
+            clearSearch.addEventListener('click', () => {
+                searchInput.value = '';
+                clearSearch.style.display = 'none';
+                const signaled = signaledFilter.checked ? true : null;
+                fetchComments('', signaled);
+                searchInput.focus();
+            });
+
+            // Initially hide clear button
+            clearSearch.style.display = 'none';
+
+            // Event listener for signaled filter checkbox
+            signaledFilter.addEventListener('change', () => {
+                const search = searchInput.value.trim();
+                const signaled = signaledFilter.checked ? true : null;
+                fetchComments(search, signaled);
+            });
+
+            // Event listener for refresh button
+            refreshBtn.addEventListener('click', () => {
+                // Add rotation animation to refresh icon
+                const refreshIcon = refreshBtn.querySelector('i');
+                refreshIcon.style.animation = 'spin 1s linear';
+
+                searchInput.value = '';
+                clearSearch.style.display = 'none';
+                signaledFilter.checked = false;
+                fetchComments('', null);
+
+                // Remove animation after it completes
+                setTimeout(() => {
+                    refreshIcon.style.animation = '';
+                }, 1000);
+            });
+
+            // Add ripple effect to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const x = e.clientX - e.target.getBoundingClientRect().left;
+                    const y = e.clientY - e.target.getBoundingClientRect().top;
+
+                    const ripple = document.createElement('span');
+                    ripple.className = 'ripple';
+                    ripple.style.cssText = `
+                        position: absolute;
+                        background-color: rgba(255, 255, 255, 0.7);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        pointer-events: none;
+                    `;
+
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+
+                    this.appendChild(ripple);
+
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // Add ripple animation
+            const style = document.createElement('style');
+            style.textContent = `
+                .btn {
+                    position: relative;
+                    overflow: hidden;
+                }
+                @keyframes ripple {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+                .ripple {
+                    width: 20px;
+                    height: 20px;
+                    opacity: 1;
+                    transform: translate(-50%, -50%);
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Initialize the first letters for author avatars
+            function initializeAuthorAvatars() {
+                document.querySelectorAll('.author-avatar').forEach(avatar => {
+                    const author = avatar.getAttribute('data-author');
+                    if (author) {
+                        avatar.textContent = author.charAt(0).toUpperCase();
+                    }
+                });
+            }
+
+            // Call after initial load and after each fetch
+            initializeAuthorAvatars();
+
+            // Add observer to handle new comments added to the DOM
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        initializeAuthorAvatars();
+                    }
+                });
+            });
+
+            observer.observe(commentsList, { childList: true, subtree: true });
+        });
+    </script>
+{% endblock %}
