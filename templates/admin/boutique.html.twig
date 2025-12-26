@@ -263,7 +263,7 @@
                                 <div class="card bg-warning text-white mb-3">
                                     <div class="card-body">
                                         <h6 class="card-title">Recette totale</h6>
-                                        <h2 class="card-text">{{ stats.totalVentes|number_format(2, '.', ' ') }} TND</h2>
+{#                                        <h2 class="card-text">{{ stats.totalVentes|number_format(2, '.', ' ') }} TND</h2>#}
                                     </div>
                                 </div>
                             </div>
@@ -295,25 +295,25 @@
                             document.addEventListener('DOMContentLoaded', function() {
                                 // Bar chart Commandes par statut
                                 const ctx = document.getElementById('commandesChart').getContext('2d');
-                                new Chart(ctx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: {{ chartData.labels|json_encode|raw }},
-                                        datasets: [{
-                                            label: 'Nombre de commandes',
-                                            data: {{ chartData.data|json_encode|raw }},
-                                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                                            borderColor: 'rgba(54, 162, 235, 1)',
-                                            borderWidth: 1
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        scales: {
-                                            y: { beginAtZero: true }
-                                        }
-                                    }
-                                });
+                                {#new Chart(ctx, {#}
+                                {#    type: 'bar',#}
+                                {#    data: {#}
+                                {#        #}{#labels: {{ chartData.labels|json_encode|raw }},#}
+                                {#        datasets: [{#}
+                                {#            label: 'Nombre de commandes',#}
+                                {#            data: {{ chartData.data|json_encode|raw }},#}
+                                {#            backgroundColor: 'rgba(54, 162, 235, 0.5)',#}
+                                {#            borderColor: 'rgba(54, 162, 235, 1)',#}
+                                {#            borderWidth: 1#}
+                                {#        }]#}
+                                {#    },#}
+                                //     options: {
+                                //         responsive: true,
+                                //         scales: {
+                                //             y: { beginAtZero: true }
+                                //         }
+                                //     }
+                                // });
                                 // Pie chart Méthodes de paiement
                                 const ctxPie = document.getElementById('paiementPieChart').getContext('2d');
                                 new Chart(ctxPie, {
